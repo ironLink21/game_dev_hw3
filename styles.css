@@ -1,0 +1,19 @@
+body {
+    background-color: #808080;
+}
+
+#main-window {
+    max-width: 1010px;
+    margin: auto;
+}
+
+h1, h4 {
+    width: 1010px;
+    text-align: center;
+    color: #FFF;
+    background-color: #4169E1;
+}
+
+#canvas {
+    border: 5px solid #4169E1;
+}
