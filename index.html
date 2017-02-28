@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang = "en-US">
+<html lang="en-US">
     <head>
         <meta charset="UTF-8" />
         <meta name="author" content="Seth Bertlshofer" />
@@ -10,17 +10,54 @@
     </head>
     <body>
         <div id="main-window">
-            <div><h1> Breakout </h1></div>
+            <h1> Breakout </h1>
+            <div id="main-menu" class="screen">
+                <div class="menu">
+                    <div onclick="Breakout.input.ButtonClick('newGame')">New&nbsp;Game</div>
+                    <div onclick="Breakout.input.ButtonClick('high-scores')">High&nbsp;Scores</div>
+                    <div onclick="Breakout.input.ButtonClick('help')">Help</div>
+                    <div onclick="Breakout.input.ButtonClick('about')">About</div>
+                </div>
+            </div>
+
+            <div id="game-play" class="screen">
+                <div class="back-btn" onclick="Breakout.input.ButtonClick('id-game-play-back')"> < Back</div>
                 <div id="canvas-section">
                     <canvas id="canvas" width="1000" height="550"></canvas>
                 </div>
-            <div><h4> Created by Seth Bertlshofer A00933231 </h4></div>
+            </div>
+
+            <div id="high-scores" class="screen">
+                <span><h1>High Scores</h1><div class="back-btn" onclick="Breakout.input.ButtonClick('')"> < Back</div></span>
+                <div id="high-score-section"></div>
+            </div>
+
+            <div id="help" class="screen">
+                <span><h1>Help</h1><div class="back-btn" onclick="Breakout.input.ButtonClick('')"> < Back</div></span>
+                <p>This is some help on how to play the game</p>
+            </div>
+
+            <div id="about" class="screen">
+
+                <span><h1>About</h1><div class="back-btn" onclick="Breakout.input.ButtonClick('')"> < Back</div></span>
+                <p>Developed by</p>
+                <p>Seth Bertlshofer A00933231</p>
+            </div>
         </div>
         <div id="score-section"></div>
     </body>
 
+    <!-- libraries -->
     <script type="text/javascript" src="./js/underscore-min.js"></script>
     <script type="text/javascript" src="./js/input.js"></script>
+
+    <!-- menu items -->
+    <script type="text/javascript" src="./js/menu/mainMenu.js"></script>
+    <script type="text/javascript" src="./js/menu/highScores.js"></script>
+    <script type="text/javascript" src="./js/menu/help.js"></script>
+    <script type="text/javascript" src="./js/menu/about.js"></script>
+
+    <!-- game elements -->
     <script type="text/javascript" src="./js/graphics.js"></script>
     <script type="text/javascript" src="./js/breakout.js"></script>
     <script type="text/javascript" src="./js/gameLoop.js"></script>

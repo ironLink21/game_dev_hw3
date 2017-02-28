@@ -1,15 +1,18 @@
-var Breakout = {};
+var Breakout = {
+    screens: {}
+};
 var KeyEvent;
 
-Breakout.input = (()=>{
+Breakout.input = ((screens)=>{
     'use strict';
+
+    var cancelNextRequest = false;
 
     function Keyboard() {
         let that = {
-                keys : {},
-                handlers : []
-            },
-            handler;
+            keys : {},
+            handlers : []
+        };
 
         function keyPress(e) {
             that.keys[e.keyCode] = e.timeStamp;
@@ -19,16 +22,16 @@ Breakout.input = (()=>{
             delete that.keys[e.keyCode];
         }
 
-        that.registerCommand = function(key, handler) {
-            that.handlers.push({ key : key, handler : handler});
+        that.registerCommand = (key, handler)=>{
+            that.handlers.push({key, handler});
         };
 
-        that.update = function(elapsedTime) {
-            for (handler = 0; handler < that.handlers.length; handler++) {
-                if (that.keys.hasOwnProperty(that.handlers[handler].key)) {
-                    that.handlers[handler].handler(elapsedTime);
+        that.update = (elapsedTime)=>{
+            _.each(that.handlers, (handler, index)=>{
+                if(that.keys.hasOwnProperty(handler.key)) {
+                    that.handlers[index].handler(elapsedTime);
                 }
-            }
+            });
         };
 
         window.addEventListener('keydown', keyPress);
@@ -37,17 +40,63 @@ Breakout.input = (()=>{
         return that;
     }
 
+    function showScreen(id) {
+        var screen = 0,
+            active = null;
+
+        // Remove the active state from all screens.  There should only be one...
+        active = document.getElementsByClassName('active');
+        for (screen = 0; screen < active.length; screen++) {
+            active[screen].classList.remove('active');
+        }
+
+        // Tell the screen to start actively running
+        screens[id].run();
+
+        // Then, set the new screen to be active
+        document.getElementById(id).classList.add('active');
+    }
+
+    function ButtonClick(id) {
+        switch(id) {
+            case 'id-game-play-back':
+                cancelNextRequest = true;
+                showScreen('main-menu');
+                break;
+
+            case 'newGame':
+                cancelNextRequest = false;
+                showScreen('game-play');
+                break;
+            case 'high-scores':
+                showScreen('high-scores');
+                break;
+            case 'help':
+                showScreen('help');
+                break;
+            case 'about':
+                showScreen('about');
+                break;
+
+            default:
+                showScreen('main-menu');
+        }
+    }
+
     return {
-        Keyboard
+        Keyboard,
+        showScreen,
+        ButtonClick,
+        cancelNextRequest
     };
-})();
+})(Breakout.screens);
 
 //------------------------------------------------------------------
 //
 // Source: http://stackoverflow.com/questions/1465374/javascript-event-keycode-constants
 //
 //------------------------------------------------------------------
-if (typeof KeyEvent === 'undefined') {
+if(typeof KeyEvent === 'undefined') {
     KeyEvent = {
         DOM_VK_CANCEL: 3,
         DOM_VK_HELP: 6,

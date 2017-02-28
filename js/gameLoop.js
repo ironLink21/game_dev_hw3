@@ -1,10 +1,9 @@
-Breakout.gameLoop = ((breakout, graphics, input)=>{
+Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     'use strict';
 
     let prevTime = performance.now();
-    let keyBoard = input.Keyboard(),
-        game = breakout.init();
-
+    let keyBoard = input.Keyboard();
+    var game;
 
     function processInput(elapsedTime) {
         keyBoard.update(elapsedTime);
@@ -12,7 +11,14 @@ Breakout.gameLoop = ((breakout, graphics, input)=>{
 
     function update(elapsedTime) {
         if(game === undefined){
-            game = breakout.init();
+            game = breakout.init({keyBoard});
+        }
+
+        if(game.isActive) {
+            // UpdatePosition(gameTime);
+            game.ball.update();
+        } else if(!game.isActive && game.ball.isStart) {
+            game.isActive = true;
         }
     }
 
@@ -31,12 +37,23 @@ Breakout.gameLoop = ((breakout, graphics, input)=>{
         update(elapsedTime);
         render(elapsedTime);
 
+        if (!input.cancelNextRequest) {
+            requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function run() {
+        // Start the animation loop
+        input.cancelNextRequest = false;
         requestAnimationFrame(gameLoop);
     }
 
-    keyBoard.registerCommand(KeyEvent.DOM_VK_A, game.paddle.moveLeft);
-    keyBoard.registerCommand(KeyEvent.DOM_VK_D, game.paddle.moveRight);
+    window.onload = ()=>{
+        game = breakout.init({keyBoard});
+    };
 
-    requestAnimationFrame(gameLoop);
+    return {
+        run
+    };
 
 })(Breakout.breakout, Breakout.graphics, Breakout.input);
