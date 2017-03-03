@@ -31,15 +31,25 @@ Breakout.graphics = ((breakout)=>{
         };
 
         that.moveLeft = (elapsedTime)=>{
-            spec.center.x -= spec.moveRate * (elapsedTime / 1000);
+            if(spec.center.x - spec.width / 2 <= 0) {
+                spec.center.x = spec.width / 2;
+
+            } else {
+                spec.center.x -= spec.moveRate * (elapsedTime / 1000);
+            }
         };
 
         that.moveRight = (elapsedTime)=>{
-            spec.center.x += spec.moveRate * (elapsedTime / 1000);
+            if(spec.center.x + spec.width / 2 >= canvas.width) {
+                spec.center.x = canvas.width - spec.width / 2;
+
+            } else {
+                spec.center.x += spec.moveRate * (elapsedTime / 1000);
+            }
         };
 
         that.draw = ()=>{
-            if(ready) {
+            if (ready) {
                 context.save();
 
                 context.translate(spec.center.x, spec.center.y);
@@ -64,19 +74,26 @@ Breakout.graphics = ((breakout)=>{
 
     function Ball(spec) {
         let that = {},
+            ready = false,
+            image = new Image(),
             center = spec.center,
-            radius = spec.radius,
-            color = spec.color;
+            radius = spec.radius;
+
+        image.onload = ()=>{
+            ready = true;
+        };
+
+        image.src = spec.image;
 
         that.update = ()=>{
-            if (center.y + dy < center.radius) {
+            if (center.y + spec.speed < radius) {
                 // hit the top
-                dy = -dy;
-            } else if (center.y + dy > breakout.paddle.y) {
+                spec.speed = -spec.speed;
+            } else if (center.y + spec.speed > breakout.paddle.y) {
                 // hit the bottom
                 if (center.x > breakout.paddle.x && center.x < breakout.paddle.x + breakout.paddle.width) {
                     // within the paddles range
-                    dy = -dy;
+                    spec.speed = -spec.speed;
                 }
             }
 
@@ -84,15 +101,15 @@ Breakout.graphics = ((breakout)=>{
                 breakout.handleGameOver();
             }
 
-            if (center.x + dx < center.radius || center.x + dx > canvas.width - radius) {
+            if (center.x + spec.speed < radius || center.x + spec.speed > canvas.width - radius) {
                 // hit the left or right wall
-                dx = -dx;
+                spec.speed = -spec.speed;
             }
 
             breakout.handleCollisions();
 
-            center.x += dx;
-            center.y += dy;
+            center.x += spec.speed;
+            center.y += spec.speed;
         };
 
         that.moveLeft = (elapsedTime)=>{
@@ -112,16 +129,20 @@ Breakout.graphics = ((breakout)=>{
         };
 
         that.draw = ()=>{
-            context.save();
+            if (ready) {
+                context.save();
 
-            context.translate(center.x, center.y);
-            context.translate(-center.x, -center.y);
+                context.translate(center.x, center.y);
+                context.translate(-center.x, -center.y);
 
-            context.arc(center.x, center.y, radius, 0, 2 * Math.PI, false);
-            context.fillStyle = color;
-            context.fill();
+                context.drawImage(
+                        image,
+                        spec.center.x - spec.width/2,
+                        spec.center.y - spec.height/2,
+                        spec.width, spec.height);
 
-            context.restore();
+                context.restore();
+            }
         };
 
         return that;
@@ -192,7 +213,7 @@ Breakout.graphics = ((breakout)=>{
         points = spec.points;
 
         that.draw = ()=>{
-            if(ready) {
+            if (ready) {
                 context.save();
 
                 context.drawImage(

@@ -28,7 +28,7 @@ Breakout.input = ((screens)=>{
 
         that.update = (elapsedTime)=>{
             _.each(that.handlers, (handler, index)=>{
-                if(that.keys.hasOwnProperty(handler.key)) {
+                if (that.keys.hasOwnProperty(handler.key)) {
                     that.handlers[index].handler(elapsedTime);
                 }
             });
@@ -96,7 +96,7 @@ Breakout.input = ((screens)=>{
 // Source: http://stackoverflow.com/questions/1465374/javascript-event-keycode-constants
 //
 //------------------------------------------------------------------
-if(typeof KeyEvent === 'undefined') {
+if (typeof KeyEvent === 'undefined') {
     KeyEvent = {
         DOM_VK_CANCEL: 3,
         DOM_VK_HELP: 6,

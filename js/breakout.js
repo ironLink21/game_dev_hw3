@@ -6,18 +6,14 @@ Breakout.breakout = ((graphics, input)=>{
         paddles,
         ball,
         text,
-        scores,
         isActive,
         isStart = false,
-        numBricks = 14,
-        dx = 2,
-        dy = 2;
+        numBricks = 14;
 
     function init(spec) {
         paddles = 3;
         bricks = [];
         isActive = false;
-        scores = (localStorage.highScores) ? localStorage.highScores : {};
 
         paddle = graphics.Paddle({
             image: './assets/blue_brick.png',
@@ -28,11 +24,12 @@ Breakout.breakout = ((graphics, input)=>{
         });
 
         ball = graphics.Ball({
-            color: '#4169E1',
+            image: './assets/blue_ball.png',
             speed: 300,
             direction: 0,
             radius: 10,
             center:{x: graphics.canvas.width / 2, y: graphics.canvas.height / 2},
+            width: 20, height: 20
         });
 
         text = graphics.Text({
@@ -43,7 +40,7 @@ Breakout.breakout = ((graphics, input)=>{
             position: {x: 100,y: 100}
         });
 
-        for(let i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++) {
             let color,
                 points,
                 cols = [];
@@ -68,7 +65,7 @@ Breakout.breakout = ((graphics, input)=>{
                 default:
             }
 
-            for(let j = 0; j < numBricks; j++) {
+            for (let j = 0; j < numBricks; j++) {
                 cols[j] = graphics.Brick({
                     color,
                     points,
@@ -89,11 +86,11 @@ Breakout.breakout = ((graphics, input)=>{
     }
 
     function handleGameOver() {
-        if(paddles <= 0) {
+        if (paddles <= 0) {
             alert("Game Over");
             input.cancelNextRequest = true;
             input.showScreen('main-menu');
-            localStorage.highScores += scores;
+
         } else {
             paddles--;
         }
@@ -105,19 +102,66 @@ Breakout.breakout = ((graphics, input)=>{
 
     }
 
+    let persistence = (()=>{
+        let highScores = {},
+            previousScores = localStorage.getItem('Breakout.highScores');
+
+        if (previousScores !== null) {
+            highScores = JSON.parse(previousScores);
+        }
+
+        function add(key, value) {
+            highScores[key] = value;
+            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+        }
+
+        function remove(key) {
+            delete highScores[key];
+            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+        }
+
+        function report(htmlNode) {
+            htmlNode.innerHTML = '';
+            let color = 1;
+            _.each(highScores, (score, key)=>{
+                color = (color === 1) ? 0 : 1;
+                htmlNode.innerHTML += ('<span class="color' + color + '"><div>' + key + '</div><div>' + score + '</div></span>');
+            });
+            htmlNode.scrollTop = htmlNode.scrollHeight;
+        }
+
+        return {
+            add,
+            remove,
+            report
+        };
+    })();
+
     function startGame() {
         ball.isStart = true;
     }
 
+    function addValue() {
+        persistence.add('1'/*document.getElementById('id-key').value*/, '1234'/*document.getElementById('id-value').value*/);
+
+        // persistence.report();
+    }
+
+    function removeValue() {
+        persistence.remove('1'/*document.getElementById('id-key').value*/);
+        // persistence.report();
+    }
 
     return {
         paddles,
-        scores,
         isStart,
         init,
         startGame,
+        persistence,
         handleCollisions,
-        handleGameOver
+        handleGameOver,
+        addValue,
+        removeValue
     };
 
 })(Breakout.graphics, Breakout.input);

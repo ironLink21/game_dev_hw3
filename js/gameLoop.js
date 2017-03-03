@@ -10,14 +10,14 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     }
 
     function update(elapsedTime) {
-        if(game === undefined){
+        if (game === undefined){
             game = breakout.init({keyBoard});
         }
 
-        if(game.isActive) {
+        if (game.isActive) {
             // UpdatePosition(gameTime);
             game.ball.update();
-        } else if(!game.isActive && game.ball.isStart) {
+        } else if (!game.isActive && game.ball.isStart) {
             game.isActive = true;
         }
     }
