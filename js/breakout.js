@@ -1,4 +1,4 @@
-Breakout.breakout = ((graphics, input)=>{
+Breakout.breakout = ((graphics, input, components)=>{
     'use strict';
 
     let bricks,
@@ -15,20 +15,19 @@ Breakout.breakout = ((graphics, input)=>{
         bricks = [];
         isActive = false;
 
-        paddle = graphics.Paddle({
+        paddle = components.Paddle({
             image: './assets/blue_brick.png',
-            moveRate: 300,
-            center: {x: graphics.canvas.width / 2, y: graphics.canvas.height - 20},
+            speed: 600,
+            center: { x: graphics.canvas.width / 2, y: graphics.canvas.height - 20 },
             width: 300,
             height: 20
         });
 
-        ball = graphics.Ball({
+        ball = components.Ball({
             image: './assets/blue_ball.png',
-            speed: 300,
+            speed: 2,
             direction: 0,
-            radius: 10,
-            center:{x: graphics.canvas.width / 2, y: graphics.canvas.height / 2},
+            center:{ x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 },
             width: 20, height: 20
         });
 
@@ -66,10 +65,10 @@ Breakout.breakout = ((graphics, input)=>{
             }
 
             for (let j = 0; j < numBricks; j++) {
-                cols[j] = graphics.Brick({
+                cols[j] = components.Brick({
                     color,
                     points,
-                    center: {x:j, y:i},
+                    block: {x:j, y:i},
                     width: graphics.canvas.width / numBricks,
                     height: 20
                 });
@@ -82,7 +81,12 @@ Breakout.breakout = ((graphics, input)=>{
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
 
-        return {bricks, paddle, ball, isActive};
+        return {
+            bricks,
+            paddle,
+            ball,
+            isActive
+        };
     }
 
     function handleGameOver() {
@@ -95,7 +99,46 @@ Breakout.breakout = ((graphics, input)=>{
             paddles--;
         }
 
+        ball.center = { x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 };
         input.showScreen('game-play');
+    }
+
+    function checkCollision() {
+
+        // bounce off left/right
+        if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
+            ball.dx = -ball.dx;
+        }
+
+        // bounce off paddle
+        if(ball.x > paddle.left && ball.x < paddle.right && ball.y + ball.dy > paddle.top - ball.radius) {
+            ball.dy = -ball.dy;
+        }
+
+        // bound off top
+        if(ball.y + ball.dy < ball.radius) {
+            ball.dy = -ball.dy;
+
+        } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
+            // ball hits bottom
+            document.location.reload();
+            // handleGameOver();
+        }
+
+
+        _.each(bricks, (row)=>{
+            _.each(row, (brick)=>{
+                if(ball.x > brick.left && ball.x < brick.right &&
+                   ball.y > brick.bottom && ball.y < brick.top) {
+                    ball.dy = -ball.dy;
+                }
+            });
+        });
+
+        // handleCollisions();
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
     }
 
     function handleCollisions() {
@@ -153,15 +196,16 @@ Breakout.breakout = ((graphics, input)=>{
     }
 
     return {
+        paddle,
         paddles,
         isStart,
         init,
         startGame,
         persistence,
-        handleCollisions,
         handleGameOver,
         addValue,
-        removeValue
+        removeValue,
+        checkCollision
     };
 
-})(Breakout.graphics, Breakout.input);
+})(Breakout.graphics, Breakout.input, Breakout.components);

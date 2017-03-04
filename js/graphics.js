@@ -1,4 +1,4 @@
-Breakout.graphics = ((breakout)=>{
+Breakout.graphics = (()=>{
     'use strict';
 
     let canvas = document.getElementById('canvas'),
@@ -13,139 +13,6 @@ Breakout.graphics = ((breakout)=>{
 
     function clear() {
         context.clear();
-    }
-
-    function Paddle(spec) {
-        let that = {},
-            ready = false,
-            image = new Image();
-
-        image.onload = ()=>{
-            ready = true;
-        };
-
-        image.src = spec.image;
-
-        that.update = ()=>{
-            //update
-        };
-
-        that.moveLeft = (elapsedTime)=>{
-            if(spec.center.x - spec.width / 2 <= 0) {
-                spec.center.x = spec.width / 2;
-
-            } else {
-                spec.center.x -= spec.moveRate * (elapsedTime / 1000);
-            }
-        };
-
-        that.moveRight = (elapsedTime)=>{
-            if(spec.center.x + spec.width / 2 >= canvas.width) {
-                spec.center.x = canvas.width - spec.width / 2;
-
-            } else {
-                spec.center.x += spec.moveRate * (elapsedTime / 1000);
-            }
-        };
-
-        that.draw = ()=>{
-            if (ready) {
-                context.save();
-
-                context.translate(spec.center.x, spec.center.y);
-                context.translate(-spec.center.x, -spec.center.y);
-
-                context.drawImage(
-                    image,
-                    spec.center.x - spec.width/2,
-                    spec.center.y - spec.height/2,
-                    spec.width, spec.height);
-
-                context.restore();
-            }
-        };
-
-        return that;
-    }
-
-    function updateBallPosition(spec) {
-
-    }
-
-    function Ball(spec) {
-        let that = {},
-            ready = false,
-            image = new Image(),
-            center = spec.center,
-            radius = spec.radius;
-
-        image.onload = ()=>{
-            ready = true;
-        };
-
-        image.src = spec.image;
-
-        that.update = ()=>{
-            if (center.y + spec.speed < radius) {
-                // hit the top
-                spec.speed = -spec.speed;
-            } else if (center.y + spec.speed > breakout.paddle.y) {
-                // hit the bottom
-                if (center.x > breakout.paddle.x && center.x < breakout.paddle.x + breakout.paddle.width) {
-                    // within the paddles range
-                    spec.speed = -spec.speed;
-                }
-            }
-
-            if (center.y > canvas.height) {
-                breakout.handleGameOver();
-            }
-
-            if (center.x + spec.speed < radius || center.x + spec.speed > canvas.width - radius) {
-                // hit the left or right wall
-                spec.speed = -spec.speed;
-            }
-
-            breakout.handleCollisions();
-
-            center.x += spec.speed;
-            center.y += spec.speed;
-        };
-
-        that.moveLeft = (elapsedTime)=>{
-            center.x -= spec.speed * (elapsedTime / 1000);
-        };
-
-        that.moveRight = (elapsedTime)=>{
-            center.x += spec.speed * (elapsedTime / 1000);
-        };
-
-        that.moveUp = (elapsedTime)=>{
-            center.y -= spec.speed * (elapsedTime / 1000);
-        };
-
-        that.moveDown = (elapsedTime)=>{
-            center.y += spec.speed * (elapsedTime / 1000);
-        };
-
-        that.draw = ()=>{
-            if (ready) {
-                context.save();
-
-                context.translate(center.x, center.y);
-                context.translate(-center.x, -center.y);
-
-                context.drawImage(
-                        image,
-                        spec.center.x - spec.width/2,
-                        spec.center.y - spec.height/2,
-                        spec.width, spec.height);
-
-                context.restore();
-            }
-        };
-
-        return that;
     }
 
     function measureText(spec) {
@@ -167,10 +34,6 @@ Breakout.graphics = ((breakout)=>{
         let that = {};
 
         that.textSize = measureText(spec);
-
-        that.update = ()=>{
-
-        };
 
         that.draw = ()=>{
             context.save();
@@ -197,46 +60,11 @@ Breakout.graphics = ((breakout)=>{
         });
     }
 
-    function Brick(spec) {
-        let that = {},
-            ready = false,
-            image = new Image(),
-            points = 0,
-            brick = './assets/' + spec.color + '_brick.png';
-
-        image.onload = ()=>{
-            ready = true;
-        };
-
-        image.src = brick;
-
-        points = spec.points;
-
-        that.draw = ()=>{
-            if (ready) {
-                context.save();
-
-                context.drawImage(
-                    image,
-                    spec.center.x*spec.width,
-                    spec.center.y*spec.height + 50,
-                    spec.width, spec.height);
-
-                context.restore();
-            }
-        };
-
-        return that;
-    }
-
     return {
         canvas,
+        context,
         clear,
-        Paddle,
         drawBricks,
-        Brick,
-        updateBallPosition,
-        Ball,
         Text
     };
-})(Breakout.breakout);
+})();

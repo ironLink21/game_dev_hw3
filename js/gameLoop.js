@@ -16,7 +16,8 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
         if (game.isActive) {
             // UpdatePosition(gameTime);
-            game.ball.update();
+            // game.ball.update(breakout);
+            breakout.checkCollision();
         } else if (!game.isActive && game.ball.isStart) {
             game.isActive = true;
         }
@@ -45,6 +46,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     function run() {
         // Start the animation loop
         input.cancelNextRequest = false;
+        breakout.startGame();
         requestAnimationFrame(gameLoop);
     }
 
