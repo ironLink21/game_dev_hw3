@@ -58,6 +58,7 @@ Breakout.components = ((graphics)=>{
         that.radius = spec.width / 2;
         that.x  = spec.center.x;
         that.y  = spec.center.y;
+
         that.dx = spec.speed;
         that.dy = spec.speed;
 
@@ -92,13 +93,13 @@ Breakout.components = ((graphics)=>{
             brick = './assets/' + spec.color + '_brick.png';
 
         that.points = spec.points;
-        that.x = spec.block.x * spec.width / 2;
-        that.y = spec.block.y * spec.height / 2;
+        that.x = spec.block.x * spec.width + spec.width / 2;
+        that.y = spec.block.y * spec.height + spec.height / 2;
 
         that.left   = that.x - spec.width / 2;
         that.right  = that.x + spec.width / 2;
-        that.top    = (that.y - spec.height / 2) + 50;
-        that.bottom = (that.y + spec.height / 2) + 50;
+        that.top    = (that.y - spec.height / 2) + spec.offset;
+        that.bottom = (that.y + spec.height / 2) + spec.offset;
 
         image.onload = ()=>{
             that.draw = ()=>{
@@ -107,7 +108,7 @@ Breakout.components = ((graphics)=>{
                 graphics.context.drawImage(
                     image,
                     spec.block.x * spec.width,
-                    spec.block.y * spec.height + 50,
+                    spec.block.y * spec.height + spec.offset,
                     spec.width, spec.height);
 
                 graphics.context.restore();
@@ -119,6 +120,10 @@ Breakout.components = ((graphics)=>{
         points = spec.points;
 
         that.draw = ()=>{};
+
+        // that.remove = ()=>{
+        //     console.log("particles");
+        // };
 
         return that;
     }

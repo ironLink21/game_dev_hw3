@@ -2,13 +2,15 @@ Breakout.breakout = ((graphics, input, components)=>{
     'use strict';
 
     let bricks,
+        brokenBricks,
         paddle,
         paddles,
         ball,
         text,
         isActive,
         isStart = false,
-        numBricks = 14;
+        numBricks = 14,
+        score;
 
     function init(spec) {
         paddles = 3;
@@ -70,7 +72,8 @@ Breakout.breakout = ((graphics, input, components)=>{
                     points,
                     block: {x:j, y:i},
                     width: graphics.canvas.width / numBricks,
-                    height: 20
+                    height: 20,
+                    offset: 50
                 });
             }
             bricks[i] = cols;
@@ -81,11 +84,15 @@ Breakout.breakout = ((graphics, input, components)=>{
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
 
+        brokenBricks = 0;
+        score = 0;
+
         return {
             bricks,
             paddle,
             ball,
-            isActive
+            isActive,
+            score
         };
     }
 
@@ -125,24 +132,38 @@ Breakout.breakout = ((graphics, input, components)=>{
             // handleGameOver();
         }
 
-
         _.each(bricks, (row)=>{
             _.each(row, (brick)=>{
-                if(ball.x > brick.left && ball.x < brick.right &&
-                   ball.y > brick.bottom && ball.y < brick.top) {
-                    ball.dy = -ball.dy;
+                if(brick) {
+                    if(ball.x > brick.left && ball.x < brick.right &&
+                    ball.y < brick.bottom && ball.y > brick.top) {
+                        ball.dy = -ball.dy;
+                        brick.remove = true;
+                        score += brick.points;
+                        brokenBricks += 1;
+                        // brick.remove();
+                    }
                 }
             });
         });
 
-        // handleCollisions();
+        handleCollisions();
 
         ball.x += ball.dx;
         ball.y += ball.dy;
     }
 
     function handleCollisions() {
+        _.each(bricks, (row, y)=>{
+            _.each(row, (brick, x)=>{
+                if(brick && brick.remove) {
+                    delete bricks[y][x];
+                }
+            });
+        });
 
+        console.log("score: " + score);
+        console.log("brokenBricks: " + brokenBricks);
     }
 
     let persistence = (()=>{

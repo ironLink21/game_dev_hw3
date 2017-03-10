@@ -55,7 +55,9 @@ Breakout.graphics = (()=>{
     function drawBricks(bricks) {
         _.each(bricks, (row)=>{
             _.each(row, (brick)=>{
-                brick.draw();
+                if(brick){
+                    brick.draw();
+                }
             });
         });
     }
