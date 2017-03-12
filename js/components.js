@@ -128,9 +128,72 @@ Breakout.components = ((graphics)=>{
         return that;
     }
 
+    function TopBar(spec) {
+        let that = {};
+
+        that.score = spec.score;
+        that.paddles = spec.paddles;
+
+        that.draw = ()=>{
+
+            graphics.context.save();
+
+            // create topBar background
+            graphics.context.fillStyle = spec.fillColor;
+            graphics.context.fillRect(0, 0, spec.width, spec.height);
+
+            // paddle section
+            let length = 0;
+            graphics.context.fillStyle = spec.color;
+
+            for(let i = 1; i < that.paddles + 1; i++) {
+                length += (spec.paddleW + (spec.paddleW * i) + (i * 10));
+                graphics.context.fillRect(spec.width - (spec.paddleW + (spec.paddleW * i) + (i * 10)), 10, spec.paddleW, spec.paddleH);
+            }
+
+            graphics.Text({
+                text: 'Paddles: ',
+                font: '12px Arial, sans-serif',
+                fill: 'rgba(150, 0, 0, 1)',
+                stroke: spec.color,
+                position: {x: spec.width - 200, y: 5}
+            }).draw();
+
+            graphics.context.restore();
+
+            // score section
+            graphics.Text({
+                text: 'Score: ' + that.score,
+                font: '12px Arial, sans-serif',
+                fill: 'rgba(150, 0, 0, 1)',
+                stroke: spec.color,
+                position: {x: 10, y: 5}
+            }).draw();
+        };
+
+        return that;
+    }
+
+    function CountDown(spec) {
+        let that = {};
+
+        that.number = spec.number;
+
+        that.draw = ()=>{
+            graphics.context.save();
+
+
+            graphics.context.restore();
+        };
+
+        return that;
+    }
+
     return {
         Paddle,
         Brick,
-        Ball
+        Ball,
+        TopBar,
+        CountDown
     };
 })(Breakout.graphics);

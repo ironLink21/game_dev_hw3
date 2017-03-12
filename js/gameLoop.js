@@ -25,6 +25,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
     function render(elapsedTime) {
         graphics.clear();
+        game.topBar.draw();
         game.paddle.draw();
         game.ball.draw();
         graphics.drawBricks(game.bricks);

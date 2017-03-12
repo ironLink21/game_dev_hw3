@@ -10,12 +10,18 @@ Breakout.breakout = ((graphics, input, components)=>{
         isActive,
         isStart = false,
         numBricks = 14,
-        score;
+        offset = 50,
+        score,
+        topBar,
+        speed;
 
     function init(spec) {
         paddles = 3;
         bricks = [];
         isActive = false;
+        brokenBricks = 0;
+        score = 0;
+        speed = 2;
 
         paddle = components.Paddle({
             image: './assets/blue_brick.png',
@@ -26,8 +32,8 @@ Breakout.breakout = ((graphics, input, components)=>{
         });
 
         ball = components.Ball({
+            speed,
             image: './assets/blue_ball.png',
-            speed: 2,
             direction: 0,
             center:{ x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 },
             width: 20, height: 20
@@ -39,6 +45,17 @@ Breakout.breakout = ((graphics, input, components)=>{
             fill: 'rgba(150, 0, 0, 1)',
             stroke: 'rgba(255,0,0,1)',
             position: {x: 100,y: 100}
+        });
+
+        topBar = components.TopBar({
+            width: graphics.canvas.width,
+            height: offset / 2,
+            fillColor: 'rgba(224, 224, 235, 1)',
+            paddleW: 30,
+            paddleH: 5,
+            score,
+            paddles,
+            color: '#4169E1',
         });
 
         for (let i = 0; i < 8; i++) {
@@ -70,10 +87,10 @@ Breakout.breakout = ((graphics, input, components)=>{
                 cols[j] = components.Brick({
                     color,
                     points,
+                    offset,
                     block: {x:j, y:i},
                     width: graphics.canvas.width / numBricks,
-                    height: 20,
-                    offset: 50
+                    height: 20
                 });
             }
             bricks[i] = cols;
@@ -84,30 +101,35 @@ Breakout.breakout = ((graphics, input, components)=>{
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
 
-        brokenBricks = 0;
-        score = 0;
-
         return {
             bricks,
             paddle,
             ball,
             isActive,
-            score
+            score,
+            topBar
         };
     }
 
     function handleGameOver() {
         if (paddles <= 0) {
-            alert("Game Over");
             input.cancelNextRequest = true;
             input.showScreen('main-menu');
 
         } else {
             paddles--;
-        }
+            topBar.paddles = paddles;
 
-        ball.center = { x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 };
-        input.showScreen('game-play');
+            ball = components.Ball({
+                speed,
+                image: './assets/blue_ball.png',
+                direction: 0,
+                center:{ x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 },
+                width: 20, height: 20
+            });
+
+            // input.showScreen('game-play');
+        }
     }
 
     function checkCollision() {
@@ -123,20 +145,22 @@ Breakout.breakout = ((graphics, input, components)=>{
         }
 
         // bound off top
-        if(ball.y + ball.dy < ball.radius) {
+        if((ball.y + ball.dy - offset / 2) < ball.radius) {
             ball.dy = -ball.dy;
 
         } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
             // ball hits bottom
-            document.location.reload();
-            // handleGameOver();
+            // document.location.reload();
+            handleGameOver();
         }
 
         _.each(bricks, (row)=>{
             _.each(row, (brick)=>{
                 if(brick) {
-                    if(ball.x > brick.left && ball.x < brick.right &&
-                    ball.y < brick.bottom && ball.y > brick.top) {
+                    let ballX = ball.x - ball.radius;
+                    let ballY = ball.y - ball.radius;
+                    if(ballX > brick.left && ballX < brick.right &&
+                    ballY < brick.bottom && ballY > brick.top) {
                         ball.dy = -ball.dy;
                         brick.remove = true;
                         score += brick.points;
@@ -146,6 +170,8 @@ Breakout.breakout = ((graphics, input, components)=>{
                 }
             });
         });
+
+        topBar.score = score;
 
         handleCollisions();
 
@@ -161,9 +187,6 @@ Breakout.breakout = ((graphics, input, components)=>{
                 }
             });
         });
-
-        console.log("score: " + score);
-        console.log("brokenBricks: " + brokenBricks);
     }
 
     let persistence = (()=>{
