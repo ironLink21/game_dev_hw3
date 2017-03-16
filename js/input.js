@@ -77,7 +77,16 @@ Breakout.input = ((screens)=>{
             case 'about':
                 showScreen('about');
                 break;
-
+            case 'unPause':
+                // TODO: restart gameLoop
+                document.getElementById('paused-section').style.display = 'none';
+                document.getElementById('background-shield').style.display = 'none';
+                break;
+            case 'quit':
+                // TODO: check score and store
+                console.log('quiting');
+                document.getElementById('paused-section').style.display = 'none';
+                document.getElementById('background-shield').style.display = 'none';
             default:
                 showScreen('main-menu');
         }

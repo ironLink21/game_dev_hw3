@@ -76,6 +76,8 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
     window.onload = ()=>{
         game = breakout.init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
+        document.getElementById('paused-section').style.display = 'none';
+        document.getElementById('background-shield').style.display = 'none';
     };
 
     return {

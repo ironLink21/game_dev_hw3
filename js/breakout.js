@@ -115,6 +115,7 @@ Breakout.breakout = ((graphics, input, components)=>{
 
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
+        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_ESCAPE, pauseGame);
 
         return {
             bricks,
@@ -128,6 +129,12 @@ Breakout.breakout = ((graphics, input, components)=>{
             topBar,
             countDown,
         };
+    }
+
+    function pauseGame() {
+        input.cancelNextRequest = true;
+        document.getElementById('paused-section').style.display = 'block';
+        document.getElementById('background-shield').style.display = 'block';
     }
 
     function countdown(elapsedTime) {
