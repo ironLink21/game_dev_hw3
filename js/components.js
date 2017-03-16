@@ -81,6 +81,10 @@ Breakout.components = ((graphics)=>{
 
         image.src = spec.image;
 
+        that.moveBall = ()=>{
+            that.x = center.x;
+        };
+
         that.draw = ()=>{};
 
         return that;
@@ -174,26 +178,10 @@ Breakout.components = ((graphics)=>{
         return that;
     }
 
-    function CountDown(spec) {
-        let that = {};
-
-        that.number = spec.number;
-
-        that.draw = ()=>{
-            graphics.context.save();
-
-
-            graphics.context.restore();
-        };
-
-        return that;
-    }
-
     return {
         Paddle,
         Brick,
         Ball,
-        TopBar,
-        CountDown
+        TopBar
     };
 })(Breakout.graphics);

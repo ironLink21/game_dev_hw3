@@ -6,22 +6,30 @@ Breakout.breakout = ((graphics, input, components)=>{
         paddle,
         paddles,
         ball,
-        text,
+        countDown,
+        countDownText,
+        countDownElapsed,
         isActive,
         isStart = false,
         numBricks = 14,
         offset = 50,
         score,
         topBar,
-        speed;
+        speed,
+        count,
+        isRestart;
 
     function init(spec) {
-        paddles = 3;
         bricks = [];
+        count = 4;
         isActive = false;
-        brokenBricks = 0;
-        score = 0;
-        speed = 2;
+        isRestart = false;
+        countDownElapsed = 0;
+
+        score = spec.score;
+        speed = spec.ballSpeed;
+        paddles = spec.paddles;
+        brokenBricks = spec.brokenBricks;
 
         paddle = components.Paddle({
             image: './assets/blue_brick.png',
@@ -35,16 +43,8 @@ Breakout.breakout = ((graphics, input, components)=>{
             speed,
             image: './assets/blue_ball.png',
             direction: 0,
-            center:{ x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 },
+            center:{ x: paddle.x, y: graphics.canvas.height - 40},
             width: 20, height: 20
-        });
-
-        text = graphics.Text({
-            text: '',
-            font: '32px Arial, sans-serif',
-            fill: 'rgba(150, 0, 0, 1)',
-            stroke: 'rgba(255,0,0,1)',
-            position: {x: 100,y: 100}
         });
 
         topBar = components.TopBar({
@@ -58,43 +58,48 @@ Breakout.breakout = ((graphics, input, components)=>{
             color: '#4169E1',
         });
 
-        for (let i = 0; i < 8; i++) {
-            let color,
-                points,
-                cols = [];
-
-            switch(i) {
-                case 0: case 1:
-                    color = 'green';
-                    points = 5;
-                    break;
-                case 2: case 3:
-                    color = 'blue';
-                    points = 3;
-                    break;
-                case 4: case 5:
-                    color = 'orange';
-                    points = 2;
-                    break;
-                case 6: case 7:
-                    color = 'yellow';
-                    points = 1;
-                    break;
-                default:
-            }
-
-            for (let j = 0; j < numBricks; j++) {
-                cols[j] = components.Brick({
-                    color,
+        if(!isRestart) {
+            for (let i = 0; i < 8; i++) {
+                let color,
                     points,
-                    offset,
-                    block: {x:j, y:i},
-                    width: graphics.canvas.width / numBricks,
-                    height: 20
-                });
+                    cols = [];
+
+                switch(i) {
+                    case 0: case 1:
+                        color = 'green';
+                        points = 5;
+                        break;
+                    case 2: case 3:
+                        color = 'blue';
+                        points = 3;
+                        break;
+                    case 4: case 5:
+                        color = 'orange';
+                        points = 2;
+                        break;
+                    case 6: case 7:
+                        color = 'yellow';
+                        points = 1;
+                        break;
+                    default:
+                }
+
+                for (let j = 0; j < numBricks; j++) {
+                    cols[j] = components.Brick({
+                        color,
+                        points,
+                        offset,
+                        block: {x:j, y:i},
+                        width: graphics.canvas.width / numBricks,
+                        height: 20
+                    });
+                }
+                bricks[i] = cols;
             }
-            bricks[i] = cols;
+        } else {
+            bricks = spec.bricks;
         }
+
 
         input.showScreen('main-menu');
 
@@ -103,37 +108,68 @@ Breakout.breakout = ((graphics, input, components)=>{
 
         return {
             bricks,
-            paddle,
-            ball,
             isActive,
             score,
-            topBar
+            speed,
+            paddles,
+            brokenBricks,
+            paddle,
+            ball,
+            topBar,
+            countDown,
+        };
+    }
+
+    function countdown(elapsedTime) {
+        let countDown = null;
+
+        countDownElapsed += elapsedTime;
+
+        if(countDownElapsed >= 1000 && !isActive) {
+            countDownElapsed = 0;
+            count--;
+            countDownText = (count !== 0) ? count : 'GO!';
+        }
+
+        countDown = graphics.Text({
+            text: countDownText,
+            font: '64px Arial, sans-serif',
+            fill: 'rgba(150, 0, 0, 1)',
+            stroke: 'rgba(255,0,0,1)',
+            position: {x: graphics.canvas.width / 2, y: graphics.canvas.height / 2}
+        });
+
+        if(count < 0) {
+            count = 3;
+            countDownText = '';
+            countDownElapsed = 0;
+            isActive = true;
+            countDown = null;
+        }
+
+        return {
+            countDown,
+            isActive
         };
     }
 
     function handleGameOver() {
-        if (paddles <= 0) {
+        if (paddles === 0) {
             input.cancelNextRequest = true;
-            input.showScreen('main-menu');
 
         } else {
             paddles--;
-            topBar.paddles = paddles;
-
-            ball = components.Ball({
-                speed,
-                image: './assets/blue_ball.png',
-                direction: 0,
-                center:{ x: graphics.canvas.width / 2, y: graphics.canvas.height / 2 },
-                width: 20, height: 20
-            });
-
-            // input.showScreen('game-play');
+            input.cancelNextRequest = true;
         }
+
+        return {
+            paddles,
+            speed,
+            score
+        };
     }
 
     function checkCollision() {
-
         // bounce off left/right
         if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
             ball.dx = -ball.dx;
@@ -150,8 +186,8 @@ Breakout.breakout = ((graphics, input, components)=>{
 
         } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
             // ball hits bottom
-            // document.location.reload();
-            handleGameOver();
+            isRestart = true;
+            input.cancelNextRequest = true;
         }
 
         _.each(bricks, (row)=>{
@@ -177,12 +213,15 @@ Breakout.breakout = ((graphics, input, components)=>{
 
         ball.x += ball.dx;
         ball.y += ball.dy;
+
+        return isRestart;
     }
 
     function handleCollisions() {
         _.each(bricks, (row, y)=>{
             _.each(row, (brick, x)=>{
                 if(brick && brick.remove) {
+                    // TODO: use a splice instead
                     delete bricks[y][x];
                 }
             });
@@ -249,7 +288,8 @@ Breakout.breakout = ((graphics, input, components)=>{
         handleGameOver,
         addValue,
         removeValue,
-        checkCollision
+        checkCollision,
+        countdown
     };
 
 })(Breakout.graphics, Breakout.input, Breakout.components);

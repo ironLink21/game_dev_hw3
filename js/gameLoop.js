@@ -11,24 +11,46 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
     function update(elapsedTime) {
         if (game === undefined){
-            game = breakout.init({keyBoard});
+            game = breakout.init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
         }
 
         if (game.isActive) {
-            // UpdatePosition(gameTime);
-            // game.ball.update(breakout);
-            breakout.checkCollision();
+            let isRestart = breakout.checkCollision(elapsedTime);
+
+            if(isRestart) {
+                let output = breakout.handleGameOver();
+
+                if(output.paddles === 0) {
+                    input.showScreen('main-menu');
+
+                } else {
+                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: game.score, ballSpeed: output.speed, brokenBricks: game.brokenBricks ,bricks: game.bricks});
+                    input.showScreen('game-play');
+                }
+
+            }
+
         } else if (!game.isActive && game.ball.isStart) {
-            game.isActive = true;
+            let output = breakout.countdown(elapsedTime);
+            game.countDown = output.countDown;
+            game.isActive = output.isActive;
+        }
+
+        if(!game.isActive) {
+            game.ball.x = game.paddle.x;
         }
     }
 
-    function render(elapsedTime) {
+    function render() {
         graphics.clear();
         game.topBar.draw();
         game.paddle.draw();
         game.ball.draw();
         graphics.drawBricks(game.bricks);
+
+        if(game.countDown) {
+            game.countDown.draw();
+        }
     }
 
     function gameLoop(time) {
@@ -37,7 +59,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
         processInput(elapsedTime);
         update(elapsedTime);
-        render(elapsedTime);
+        render();
 
         if (!input.cancelNextRequest) {
             requestAnimationFrame(gameLoop);
@@ -52,7 +74,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     }
 
     window.onload = ()=>{
-        game = breakout.init({keyBoard});
+        game = breakout.init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
     };
 
     return {
