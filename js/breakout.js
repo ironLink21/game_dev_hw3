@@ -72,7 +72,7 @@ Breakout.breakout = ((graphics, input, components)=>{
             for (let i = 0; i < 8; i++) {
                 let color,
                     points,
-                    cols = [];
+                    cols = {isGiven: false, bricks:[]};
 
                 switch(i) {
                     case 0: case 1:
@@ -95,7 +95,7 @@ Breakout.breakout = ((graphics, input, components)=>{
                 }
 
                 for (let j = 0; j < numBricks; j++) {
-                    cols[j] = components.Brick({
+                    cols.bricks[j] = components.Brick({
                         color,
                         points,
                         offset,
@@ -231,7 +231,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         }
 
         _.each(bricks, (row)=>{
-            _.each(row, (brick)=>{
+            _.each(row.bricks, (brick)=>{
                 if(brick) {
                     let ballX = ball.x - ball.radius;
                     let ballY = ball.y - ball.radius;
@@ -259,12 +259,19 @@ Breakout.breakout = ((graphics, input, components)=>{
 
     function handleCollisions() {
         _.each(bricks, (row, y)=>{
-            _.each(row, (brick, x)=>{
+            _.each(row.bricks, (brick, x)=>{
                 if(brick && brick.remove) {
-                    // TODO: use a splice instead
-                    delete bricks[y][x];
+                    bricks[y].bricks.splice(x,1);
                 }
             });
+        });
+
+        _.each(bricks, (row)=>{
+            console.log(row.bricks.length);
+            if(!row.isGiven && row.bricks.length === 0) {
+                row.isGiven = true;
+                score += 25;
+            }
         });
     }
 
