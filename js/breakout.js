@@ -11,6 +11,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         countDownElapsed,
         isActive,
         isStart = false,
+        didSetSpeed = false,
         numBricks = 14,
         offset = 50,
         score,
@@ -26,6 +27,10 @@ Breakout.breakout = ((graphics, input, components)=>{
         isRestart = false;
         countDownElapsed = 0;
 
+        if(spec.isRestart) {
+            isRestart = spec.isRestart;
+        }
+
         score = spec.score;
         speed = spec.ballSpeed;
         paddles = spec.paddles;
@@ -39,13 +44,18 @@ Breakout.breakout = ((graphics, input, components)=>{
             height: 20
         });
 
-        ball = components.Ball({
-            speed,
-            image: './assets/blue_ball.png',
-            direction: 0,
-            center:{ x: paddle.x, y: graphics.canvas.height - 40},
-            width: 20, height: 20
-        });
+        if(!isRestart){
+            ball = components.Ball({
+                speed,
+                image: './assets/blue_ball.png',
+                direction: 0,
+                center:{ x: paddle.x, y: graphics.canvas.height - 40},
+                width: 20, height: 20
+            });
+        } else {
+            ball = spec.ball;
+            ball.resetCenter({ x: paddle.x, y: graphics.canvas.height - 40});
+        }
 
         topBar = components.TopBar({
             width: graphics.canvas.width,
@@ -165,8 +175,38 @@ Breakout.breakout = ((graphics, input, components)=>{
         return {
             paddles,
             speed,
-            score
+            score,
+            bricks,
+            ball
         };
+    }
+
+    function updateSpeed(spec) {
+        if(didSetSpeed !== spec.num) {
+            didSetSpeed = spec.num;
+            speed += spec.speed;
+            ball.updateSpeed(speed);
+        }
+    }
+
+    function checkBrokenBricks() {
+        switch(brokenBricks) {
+            case 4:
+                updateSpeed({num: 4, speed: 1});
+                break;
+            case 12:
+                updateSpeed({num: 12, speed: 1});
+                break;
+            case 36:
+                updateSpeed({num: 36, speed: 3});
+                break;
+            case 62:
+                updateSpeed({num: 62, speed: 4});
+                break;
+            default:
+        }
+
+
     }
 
     function checkCollision() {
@@ -288,6 +328,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         handleGameOver,
         addValue,
         removeValue,
+        checkBrokenBricks,
         checkCollision,
         countdown
     };

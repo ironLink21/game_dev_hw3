@@ -24,11 +24,12 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
                     input.showScreen('main-menu');
 
                 } else {
-                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: game.score, ballSpeed: output.speed, brokenBricks: game.brokenBricks ,bricks: game.bricks});
+                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, ball: output.ball});
                     input.showScreen('game-play');
                 }
-
             }
+
+            breakout.checkBrokenBricks();
 
         } else if (!game.isActive && game.ball.isStart) {
             let output = breakout.countdown(elapsedTime);

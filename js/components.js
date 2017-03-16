@@ -81,8 +81,14 @@ Breakout.components = ((graphics)=>{
 
         image.src = spec.image;
 
-        that.moveBall = ()=>{
-            that.x = center.x;
+        that.resetCenter = (center)=>{
+            that.x  = center.x;
+            that.y  = center.y;
+        };
+
+        that.updateSpeed = (speed)=>{
+            that.dx = speed;
+            that.dy = speed;
         };
 
         that.draw = ()=>{};
