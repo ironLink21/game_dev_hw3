@@ -4,15 +4,15 @@ Breakout.graphics = (()=>{
     let canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d');
 
-    CanvasRenderingContext2D.prototype.clear = function() {
+    CanvasRenderingContext2D.prototype.Clear = function() {
         this.save();
         this.setTransform(1, 0, 0, 1, 0, 0);
         this.clearRect(0, 0, canvas.width, canvas.height);
         this.restore();
     };
 
-    function clear() {
-        context.clear();
+    function Clear() {
+        context.Clear();
     }
 
     function measureText(spec) {
@@ -52,7 +52,7 @@ Breakout.graphics = (()=>{
         return that;
     }
 
-    function drawBricks(bricks) {
+    function DrawBricks(bricks) {
         _.each(bricks, (row)=>{
             _.each(row.bricks, (brick)=>{
                 if(brick){
@@ -62,7 +62,7 @@ Breakout.graphics = (()=>{
         });
     }
 
-    function drawBalls(balls) {
+    function DrawBalls(balls) {
         _.each(balls, (ball)=>{
             ball.draw();
         });
@@ -71,9 +71,9 @@ Breakout.graphics = (()=>{
     return {
         canvas,
         context,
-        clear,
-        drawBricks,
-        drawBalls,
-        Text
+        Clear,
+        Text,
+        DrawBricks,
+        DrawBalls
     };
 })();

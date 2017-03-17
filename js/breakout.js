@@ -26,7 +26,56 @@ Breakout.breakout = ((graphics, input, components)=>{
         countDownText,
         countDownElapsed;
 
-    function init(spec) {
+// ******** storage section
+    let persistence = (()=>{
+        let highScores = {},
+            previousScores = localStorage.getItem('Breakout.highScores');
+
+        if (previousScores !== null) {
+            highScores = JSON.parse(previousScores);
+        }
+
+        function add(key, value) {
+            highScores[key] = value;
+            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+        }
+
+        function remove(key) {
+            delete highScores[key];
+            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+        }
+
+        function report(htmlNode) {
+            htmlNode.innerHTML = '';
+            let color = 1;
+            _.each(highScores, (score, key)=>{
+                color = (color === 1) ? 0 : 1;
+                htmlNode.innerHTML += ('<span class="color' + color + '"><div>' + key + '</div><div>' + score + '</div></span>');
+            });
+            htmlNode.scrollTop = htmlNode.scrollHeight;
+        }
+
+        return {
+            add,
+            remove,
+            report
+        };
+    })();
+
+    function addValue() {
+        persistence.add('1'/*document.getElementById('id-key').value*/, '1234'/*document.getElementById('id-value').value*/);
+
+        // persistence.report();
+    }
+
+    function removeValue() {
+        persistence.remove('1'/*document.getElementById('id-key').value*/);
+        // persistence.report();
+    }
+// ******** storage section -- end
+
+// ******** game state functions
+    function Init(spec) {
         isActive = false;
         isRestart = false;
         bricks = [];
@@ -119,7 +168,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         }
 
 
-        input.showScreen('main-menu');
+        input.ShowScreen('main-menu');
 
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
@@ -139,13 +188,35 @@ Breakout.breakout = ((graphics, input, components)=>{
         };
     }
 
+    function StartGame() {
+        balls[0].isStart = true;
+    }
+
     function pauseGame() {
         input.cancelNextRequest = true;
         document.getElementById('paused-section').style.display = 'block';
         document.getElementById('background-shield').style.display = 'block';
     }
 
-    function countdown(elapsedTime) {
+    function HandleGameOver() {
+        if (paddles === 0) {
+            input.cancelNextRequest = true;
+
+        } else {
+            paddles--;
+            input.cancelNextRequest = true;
+        }
+
+        return {
+            paddles,
+            speed,
+            score,
+            bricks,
+            balls
+        };
+    }
+
+    function Countdown(elapsedTime) {
         let countDown = null;
 
         countDownElapsed += elapsedTime;
@@ -178,22 +249,21 @@ Breakout.breakout = ((graphics, input, components)=>{
         };
     }
 
-    function handleGameOver() {
-        if (paddles === 0) {
-            input.cancelNextRequest = true;
+    function handleCollisions() {
+        _.each(bricks, (row, y)=>{
+            _.each(row.bricks, (brick, x)=>{
+                if(brick && brick.remove) {
+                    bricks[y].bricks.splice(x,1);
+                }
+            });
+        });
 
-        } else {
-            paddles--;
-            input.cancelNextRequest = true;
-        }
-
-        return {
-            paddles,
-            speed,
-            score,
-            bricks,
-            balls
-        };
+        _.each(bricks, (row)=>{
+            if(!row.isGiven && row.bricks.length === 0) {
+                row.isGiven = true;
+                score += 25;
+            }
+        });
     }
 
     function updateSpeed(spec) {
@@ -206,8 +276,10 @@ Breakout.breakout = ((graphics, input, components)=>{
             });
         }
     }
+// ******** game state functions -- end
 
-    function checkBrokenBricks() {
+// ******** check functions
+    function CheckBrokenBricks() {
         switch(brokenBricks) {
             case 4:
                 updateSpeed({num: 4, speed: 1});
@@ -225,7 +297,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         }
     }
 
-    function checkPoints() {
+    function CheckPoints() {
         switch(score) {
             case 100:
                 // updateSpeed({num: 100, speed: 1});
@@ -234,7 +306,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         }
     }
 
-    function checkCollision() {
+    function CheckCollision() {
         _.each(balls, (ball)=>{
             // bounce off left/right
             if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
@@ -300,87 +372,25 @@ Breakout.breakout = ((graphics, input, components)=>{
         return isRestart;
     }
 
-    function handleCollisions() {
-        _.each(bricks, (row, y)=>{
-            _.each(row.bricks, (brick, x)=>{
-                if(brick && brick.remove) {
-                    bricks[y].bricks.splice(x,1);
-                }
-            });
-        });
-
-        _.each(bricks, (row)=>{
-            if(!row.isGiven && row.bricks.length === 0) {
-                row.isGiven = true;
-                score += 25;
-            }
-        });
-    }
-
-    let persistence = (()=>{
-        let highScores = {},
-            previousScores = localStorage.getItem('Breakout.highScores');
-
-        if (previousScores !== null) {
-            highScores = JSON.parse(previousScores);
-        }
-
-        function add(key, value) {
-            highScores[key] = value;
-            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
-        }
-
-        function remove(key) {
-            delete highScores[key];
-            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
-        }
-
-        function report(htmlNode) {
-            htmlNode.innerHTML = '';
-            let color = 1;
-            _.each(highScores, (score, key)=>{
-                color = (color === 1) ? 0 : 1;
-                htmlNode.innerHTML += ('<span class="color' + color + '"><div>' + key + '</div><div>' + score + '</div></span>');
-            });
-            htmlNode.scrollTop = htmlNode.scrollHeight;
-        }
-
-        return {
-            add,
-            remove,
-            report
-        };
-    })();
-
-    function startGame() {
-        balls[0].isStart = true;
-    }
-
-    function addValue() {
-        persistence.add('1'/*document.getElementById('id-key').value*/, '1234'/*document.getElementById('id-value').value*/);
-
-        // persistence.report();
-    }
-
-    function removeValue() {
-        persistence.remove('1'/*document.getElementById('id-key').value*/);
-        // persistence.report();
-    }
+// ******** check functions -- end
 
     return {
-        paddle,
-        paddles,
         isStart,
-        init,
-        startGame,
+        paddles,
+        paddle,
+
         persistence,
-        handleGameOver,
         addValue,
         removeValue,
-        checkBrokenBricks,
-        checkPoints,
-        checkCollision,
-        countdown
+
+        Init,
+        StartGame,
+        HandleGameOver,
+        Countdown,
+
+        CheckBrokenBricks,
+        CheckPoints,
+        CheckCollision
     };
 
 })(Breakout.graphics, Breakout.input, Breakout.components);

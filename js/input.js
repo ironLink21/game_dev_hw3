@@ -40,7 +40,7 @@ Breakout.input = ((screens)=>{
         return that;
     }
 
-    function showScreen(id) {
+    function ShowScreen(id) {
         var screen = 0,
             active = null;
 
@@ -61,21 +61,21 @@ Breakout.input = ((screens)=>{
         switch(id) {
             case 'id-game-play-back':
                 cancelNextRequest = true;
-                showScreen('main-menu');
+                ShowScreen('main-menu');
                 break;
 
             case 'newGame':
                 cancelNextRequest = false;
-                showScreen('game-play');
+                ShowScreen('game-play');
                 break;
             case 'high-scores':
-                showScreen('high-scores');
+                ShowScreen('high-scores');
                 break;
             case 'help':
-                showScreen('help');
+                ShowScreen('help');
                 break;
             case 'about':
-                showScreen('about');
+                ShowScreen('about');
                 break;
             case 'unPause':
                 // TODO: restart gameLoop
@@ -88,15 +88,16 @@ Breakout.input = ((screens)=>{
                 document.getElementById('paused-section').style.display = 'none';
                 document.getElementById('background-shield').style.display = 'none';
             default:
-                showScreen('main-menu');
+                ShowScreen('main-menu');
         }
     }
 
     return {
+        cancelNextRequest,
+
         Keyboard,
-        showScreen,
+        ShowScreen,
         ButtonClick,
-        cancelNextRequest
     };
 })(Breakout.screens);
 

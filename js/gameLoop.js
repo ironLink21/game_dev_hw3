@@ -11,29 +11,29 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
     function update(elapsedTime) {
         if (game === undefined){
-            game = breakout.init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
+            game = breakout.Init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
         }
 
         if (game.isActive) {
-            let isRestart = breakout.checkCollision(elapsedTime);
+            let isRestart = breakout.CheckCollision(elapsedTime);
 
             if(isRestart) {
-                let output = breakout.handleGameOver();
+                let output = breakout.HandleGameOver();
 
                 if(output.paddles === 0) {
-                    input.showScreen('main-menu');
+                    input.ShowScreen('main-menu');
 
                 } else {
-                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
-                    input.showScreen('game-play');
+                    game = breakout.Init({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
+                    input.ShowScreen('game-play');
                 }
             }
 
-            breakout.checkBrokenBricks();
-            breakout.checkPoints();
+            breakout.CheckBrokenBricks();
+            breakout.CheckPoints();
 
         } else if (!game.isActive && game.balls[0].isStart) {
-            let output = breakout.countdown(elapsedTime);
+            let output = breakout.Countdown(elapsedTime);
             game.countDown = output.countDown;
             game.isActive = output.isActive;
         }
@@ -44,11 +44,11 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     }
 
     function render() {
-        graphics.clear();
+        graphics.Clear();
         game.topBar.draw();
         game.paddle.draw();
-        graphics.drawBalls(game.balls);
-        graphics.drawBricks(game.bricks);
+        graphics.DrawBalls(game.balls);
+        graphics.DrawBricks(game.bricks);
 
         if(game.countDown) {
             game.countDown.draw();
@@ -71,12 +71,12 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     function run() {
         // Start the animation loop
         input.cancelNextRequest = false;
-        breakout.startGame();
+        breakout.StartGame();
         requestAnimationFrame(gameLoop);
     }
 
     window.onload = ()=>{
-        game = breakout.init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
+        game = breakout.Init({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
         document.getElementById('paused-section').style.display = 'none';
         document.getElementById('background-shield').style.display = 'none';
     };
