@@ -24,21 +24,22 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
                     input.showScreen('main-menu');
 
                 } else {
-                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, ball: output.ball});
+                    game = breakout.init({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
                     input.showScreen('game-play');
                 }
             }
 
             breakout.checkBrokenBricks();
+            breakout.checkPoints();
 
-        } else if (!game.isActive && game.ball.isStart) {
+        } else if (!game.isActive && game.balls[0].isStart) {
             let output = breakout.countdown(elapsedTime);
             game.countDown = output.countDown;
             game.isActive = output.isActive;
         }
 
         if(!game.isActive) {
-            game.ball.x = game.paddle.x;
+            game.balls[0].x = game.paddle.x;
         }
     }
 
@@ -46,7 +47,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
         graphics.clear();
         game.topBar.draw();
         game.paddle.draw();
-        game.ball.draw();
+        graphics.drawBalls(game.balls);
         graphics.drawBricks(game.bricks);
 
         if(game.countDown) {

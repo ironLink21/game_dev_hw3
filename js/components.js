@@ -109,8 +109,8 @@ Breakout.components = ((graphics)=>{
 
         that.left   = that.x - spec.width / 2;
         that.right  = that.x + spec.width / 2;
-        that.top    = (that.y - spec.height / 2) + spec.offset;
-        that.bottom = (that.y + spec.height / 2) + spec.offset;
+        that.top    = (that.y - spec.height / 2) + spec.OFFSET;
+        that.bottom = (that.y + spec.height / 2) + spec.OFFSET;
 
         image.onload = ()=>{
             that.draw = ()=>{
@@ -119,7 +119,7 @@ Breakout.components = ((graphics)=>{
                 graphics.context.drawImage(
                     image,
                     spec.block.x * spec.width,
-                    spec.block.y * spec.height + spec.offset,
+                    spec.block.y * spec.height + spec.OFFSET,
                     spec.width, spec.height);
 
                 graphics.context.restore();

@@ -1,30 +1,37 @@
 Breakout.breakout = ((graphics, input, components)=>{
     'use strict';
 
-    let bricks,
-        brokenBricks,
-        paddle,
-        paddles,
-        ball,
-        countDown,
-        countDownText,
-        countDownElapsed,
+    let NUMBRICKS = 14,
+        OFFSET = 50,
+
         isActive,
         isStart = false,
+        isRestart,
         didSetSpeed = false,
-        numBricks = 14,
-        offset = 50,
+
+        bricks,
+        balls,
+        paddles,
+
+        brokenBricks,
+
+        paddle,
+        ball,
         score,
         topBar,
         speed,
         count,
-        isRestart;
+
+        countDown,
+        countDownText,
+        countDownElapsed;
 
     function init(spec) {
-        bricks = [];
-        count = 4;
         isActive = false;
         isRestart = false;
+        bricks = [];
+        balls = [];
+        count = 4;
         countDownElapsed = 0;
 
         if(spec.isRestart) {
@@ -52,14 +59,15 @@ Breakout.breakout = ((graphics, input, components)=>{
                 center:{ x: paddle.x, y: graphics.canvas.height - 40},
                 width: 20, height: 20
             });
+            balls.push(ball);
         } else {
-            ball = spec.ball;
-            ball.resetCenter({ x: paddle.x, y: graphics.canvas.height - 40});
+            balls = spec.balls;
+            balls[0].resetCenter({ x: paddle.x, y: graphics.canvas.height - 40});
         }
 
         topBar = components.TopBar({
             width: graphics.canvas.width,
-            height: offset / 2,
+            height: OFFSET / 2,
             fillColor: 'rgba(224, 224, 235, 1)',
             paddleW: 30,
             paddleH: 5,
@@ -94,13 +102,13 @@ Breakout.breakout = ((graphics, input, components)=>{
                     default:
                 }
 
-                for (let j = 0; j < numBricks; j++) {
+                for (let j = 0; j < NUMBRICKS; j++) {
                     cols.bricks[j] = components.Brick({
                         color,
                         points,
-                        offset,
+                        OFFSET,
                         block: {x:j, y:i},
-                        width: graphics.canvas.width / numBricks,
+                        width: graphics.canvas.width / NUMBRICKS,
                         height: 20
                     });
                 }
@@ -119,13 +127,13 @@ Breakout.breakout = ((graphics, input, components)=>{
 
         return {
             bricks,
+            balls,
             isActive,
             score,
             speed,
             paddles,
             brokenBricks,
             paddle,
-            ball,
             topBar,
             countDown,
         };
@@ -184,7 +192,7 @@ Breakout.breakout = ((graphics, input, components)=>{
             speed,
             score,
             bricks,
-            ball
+            balls
         };
     }
 
@@ -192,7 +200,10 @@ Breakout.breakout = ((graphics, input, components)=>{
         if(didSetSpeed !== spec.num) {
             didSetSpeed = spec.num;
             speed += spec.speed;
-            ball.updateSpeed(speed);
+
+            _.each(balls, (ball)=>{
+                ball.updateSpeed(speed);
+            });
         }
     }
 
@@ -212,70 +223,79 @@ Breakout.breakout = ((graphics, input, components)=>{
                 break;
             default:
         }
+    }
 
-
+    function checkPoints() {
+        switch(score) {
+            case 100:
+                // updateSpeed({num: 100, speed: 1});
+                break;
+            default:
+        }
     }
 
     function checkCollision() {
-        // bounce off left/right
-        if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
-            ball.dx = -ball.dx;
-        }
-
-        // paddle collision
-        if(ball.y + ball.dy > paddle.top - ball.radius) {
-
-            // left
-            if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
-                ball.dy = -ball.dy;
-                ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+        _.each(balls, (ball)=>{
+            // bounce off left/right
+            if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
+                ball.dx = -ball.dx;
             }
 
-            // center
-            if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
-                ball.dy = -ball.dy;
-            }
+            // paddle collision
+            if(ball.y + ball.dy > paddle.top - ball.radius) {
 
-            // right
-            if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
-                ball.dy = -ball.dy;
-                ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
-            }
-        }
-
-        // bound off top
-        if((ball.y + ball.dy - offset / 2) < ball.radius) {
-            ball.dy = -ball.dy;
-
-        } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
-            // ball hits bottom
-            isRestart = true;
-            input.cancelNextRequest = true;
-        }
-
-        _.each(bricks, (row)=>{
-            _.each(row.bricks, (brick)=>{
-                if(brick) {
-                    let ballX = ball.x - ball.radius;
-                    let ballY = ball.y - ball.radius;
-                    if(ballX > brick.left && ballX < brick.right &&
-                    ballY < brick.bottom && ballY > brick.top) {
-                        ball.dy = -ball.dy;
-                        brick.remove = true;
-                        score += brick.points;
-                        brokenBricks += 1;
-                        // brick.remove();
-                    }
+                // left
+                if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
+                    ball.dy = -ball.dy;
+                    ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
                 }
+
+                // center
+                if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
+                    ball.dy = -ball.dy;
+                }
+
+                // right
+                if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
+                    ball.dy = -ball.dy;
+                    ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+                }
+            }
+
+            // bound off top
+            if((ball.y + ball.dy - OFFSET / 2) < ball.radius) {
+                ball.dy = -ball.dy;
+
+            } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
+                // ball hits bottom
+                isRestart = true;
+                input.cancelNextRequest = true;
+            }
+
+            _.each(bricks, (row)=>{
+                _.each(row.bricks, (brick)=>{
+                    if(brick) {
+                        let ballX = ball.x - ball.radius;
+                        let ballY = ball.y - ball.radius;
+                        if(ballX > brick.left && ballX < brick.right &&
+                        ballY < brick.bottom && ballY > brick.top) {
+                            ball.dy = -ball.dy;
+                            brick.remove = true;
+                            score += brick.points;
+                            brokenBricks += 1;
+                            // brick.remove();
+                        }
+                    }
+                });
             });
+
+            topBar.score = score;
+
+            handleCollisions();
+
+            ball.x += ball.dx;
+            ball.y += ball.dy;
         });
-
-        topBar.score = score;
-
-        handleCollisions();
-
-        ball.x += ball.dx;
-        ball.y += ball.dy;
 
         return isRestart;
     }
@@ -333,7 +353,7 @@ Breakout.breakout = ((graphics, input, components)=>{
     })();
 
     function startGame() {
-        ball.isStart = true;
+        balls[0].isStart = true;
     }
 
     function addValue() {
@@ -358,6 +378,7 @@ Breakout.breakout = ((graphics, input, components)=>{
         addValue,
         removeValue,
         checkBrokenBricks,
+        checkPoints,
         checkCollision,
         countdown
     };

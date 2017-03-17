@@ -62,11 +62,18 @@ Breakout.graphics = (()=>{
         });
     }
 
+    function drawBalls(balls) {
+        _.each(balls, (ball)=>{
+            ball.draw();
+        });
+    }
+
     return {
         canvas,
         context,
         clear,
         drawBricks,
+        drawBalls,
         Text
     };
 })();
