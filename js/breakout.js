@@ -222,9 +222,25 @@ Breakout.breakout = ((graphics, input, components)=>{
             ball.dx = -ball.dx;
         }
 
-        // bounce off paddle
-        if(ball.x > paddle.left && ball.x < paddle.right && ball.y + ball.dy > paddle.top - ball.radius) {
-            ball.dy = -ball.dy;
+        // paddle collision
+        if(ball.y + ball.dy > paddle.top - ball.radius) {
+
+            // left
+            if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
+                ball.dy = -ball.dy;
+                ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+            }
+
+            // center
+            if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
+                ball.dy = -ball.dy;
+            }
+
+            // right
+            if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
+                ball.dy = -ball.dy;
+                ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+            }
         }
 
         // bound off top
@@ -274,7 +290,6 @@ Breakout.breakout = ((graphics, input, components)=>{
         });
 
         _.each(bricks, (row)=>{
-            console.log(row.bricks.length);
             if(!row.isGiven && row.bricks.length === 0) {
                 row.isGiven = true;
                 score += 25;

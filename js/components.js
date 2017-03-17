@@ -14,6 +14,7 @@ Breakout.components = ((graphics)=>{
         that.top   = spec.center.y - that.height / 2;
         that.left  = spec.center.x - that.width / 2;
         that.right = spec.center.x + that.width / 2;
+        that.centerSection = (that.width / 3) / 2;
 
         image.onload = ()=>{
             that.draw = ()=>{
@@ -130,10 +131,6 @@ Breakout.components = ((graphics)=>{
         points = spec.points;
 
         that.draw = ()=>{};
-
-        // that.remove = ()=>{
-        //     console.log("particles");
-        // };
 
         return that;
     }
