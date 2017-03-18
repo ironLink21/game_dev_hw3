@@ -55,10 +55,11 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 // ******** game state functions
     function Create(spec) {
         let that = {},
-            countDownText = '',
-            didSetSpeed = 0,
             isRestart = false,
+            isShrinkPaddle = false,
             count = 4,
+            didSetSpeed = 0,
+            countDownText = '',
             countDownElapsed = 0;
 
         that.isActive = false;
@@ -78,7 +79,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         that.paddle = components.Paddle({
             image: './assets/blue_brick.png',
             speed: 600,
-            center: { x: graphics.canvas.width / 2, y: graphics.canvas.height - 20 },
+            center: { x: graphics.canvas.width / 2, y: graphics.canvas.height - 20},
             width: 300,
             height: 20
         });
@@ -222,10 +223,15 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 });
             });
 
-            _.each(that.bricks, (row)=>{
+            _.each(that.bricks, (row, i)=>{
                 if(!row.isGiven && row.bricks.length === 0) {
                     row.isGiven = true;
                     that.score += 25;
+                }
+
+                if(!isShrinkPaddle && i === 0 && row.bricks.length === NUMBRICKS - 1) {
+                    isShrinkPaddle = true;
+                    that.paddle.width = that.paddle.width / 2;
                 }
             });
         }
@@ -240,9 +246,9 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 });
             }
         }
-    // ******** game state functions -- end
+// ******** game state functions -- end
 
-    // ******** check functions
+// ******** check functions
         that.CheckBrokenBricks = ()=>{
             switch(that.brokenBricks) {
                 case 4:
@@ -285,7 +291,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                     // left
                     if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
                         ball.dy = -ball.dy;
-                        ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+                        // ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
                     }
 
                     // center
@@ -296,7 +302,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                     // right
                     if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
                         ball.dy = -ball.dy;
-                        ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+                        // ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
                     }
                 }
 
@@ -321,7 +327,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                                 brick.remove = true;
                                 that.score += brick.points;
                                 that.brokenBricks += 1;
-                                // brick.remove();
                             }
                         }
                     });
@@ -337,8 +342,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
             return isRestart;
         };
-
-    // ******** check functions -- end
+// ******** check functions -- end
 
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, that.paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, that.paddle.moveRight);

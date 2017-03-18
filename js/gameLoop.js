@@ -12,7 +12,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
 
     function update(elapsedTime) {
         if (game === undefined){
-            game = breakout.Create({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
+            game = breakout.Create({keyBoard, paddles: 3, score: 0, ballSpeed: 3, brokenBricks: 0});
         }
 
         if (game.isActive) {
@@ -57,10 +57,10 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     }
 
     function gameLoop(time) {
-        if(!game.isPaused) {
-            let elapsedTime = time - prevTime;
-            prevTime = time;
+        let elapsedTime = time - prevTime;
+        prevTime = time;
 
+        if(!game.isPaused) {
             processInput(elapsedTime);
             update(elapsedTime);
             render();
@@ -79,7 +79,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
     }
 
     window.onload = ()=>{
-        game = breakout.Create({keyBoard, paddles: 3, score: 0, ballSpeed: 2, brokenBricks: 0});
+        game = breakout.Create({keyBoard, paddles: 3, score: 0, ballSpeed: 3, brokenBricks: 0});
         document.getElementById('paused-section').style.display = 'none';
         document.getElementById('background-shield').style.display = 'none';
     };
