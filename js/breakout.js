@@ -1,30 +1,8 @@
-Breakout.breakout = ((graphics, input, components)=>{
+Breakout.breakout = ((screens, graphics, input, components)=>{
     'use strict';
 
     let NUMBRICKS = 14,
-        OFFSET = 50,
-
-        isActive,
-        isStart = false,
-        isRestart,
-        didSetSpeed = false,
-
-        bricks,
-        balls,
-        paddles,
-
-        brokenBricks,
-
-        paddle,
-        ball,
-        score,
-        topBar,
-        speed,
-        count,
-
-        countDown,
-        countDownText,
-        countDownElapsed;
+        OFFSET = 50;
 
 // ******** storage section
     let persistence = (()=>{
@@ -75,24 +53,29 @@ Breakout.breakout = ((graphics, input, components)=>{
 // ******** storage section -- end
 
 // ******** game state functions
-    function Init(spec) {
-        isActive = false;
-        isRestart = false;
-        bricks = [];
-        balls = [];
-        count = 4;
-        countDownElapsed = 0;
+    function Create(spec) {
+        let that = {},
+            countDownText = '',
+            didSetSpeed = 0,
+            isRestart = false,
+            count = 4,
+            countDownElapsed = 0;
+
+        that.isActive = false;
+        that.isPaused = false;
+        that.bricks = [];
+        that.balls = [];
+
+        that.score = spec.score;
+        that.speed = spec.ballSpeed;
+        that.paddles = spec.paddles;
+        that.brokenBricks = spec.brokenBricks;
 
         if(spec.isRestart) {
             isRestart = spec.isRestart;
         }
 
-        score = spec.score;
-        speed = spec.ballSpeed;
-        paddles = spec.paddles;
-        brokenBricks = spec.brokenBricks;
-
-        paddle = components.Paddle({
+        that.paddle = components.Paddle({
             image: './assets/blue_brick.png',
             speed: 600,
             center: { x: graphics.canvas.width / 2, y: graphics.canvas.height - 20 },
@@ -101,27 +84,28 @@ Breakout.breakout = ((graphics, input, components)=>{
         });
 
         if(!isRestart){
-            ball = components.Ball({
-                speed,
+            let ball = components.Ball({
+                speed: that.speed,
                 image: './assets/blue_ball.png',
                 direction: 0,
-                center:{ x: paddle.x, y: graphics.canvas.height - 40},
+                center:{ x: that.paddle.x, y: graphics.canvas.height - 40},
                 width: 20, height: 20
             });
-            balls.push(ball);
+            that.balls.push(ball);
+
         } else {
-            balls = spec.balls;
-            balls[0].resetCenter({ x: paddle.x, y: graphics.canvas.height - 40});
+            that.balls = spec.balls;
+            that.balls[0].resetCenter({ x: that.paddle.x, y: graphics.canvas.height - 40});
         }
 
-        topBar = components.TopBar({
+        that.topBar = components.TopBar({
             width: graphics.canvas.width,
             height: OFFSET / 2,
             fillColor: 'rgba(224, 224, 235, 1)',
             paddleW: 30,
             paddleH: 5,
-            score,
-            paddles,
+            score: that.score,
+            paddles: that.paddles,
             color: '#4169E1',
         });
 
@@ -161,236 +145,216 @@ Breakout.breakout = ((graphics, input, components)=>{
                         height: 20
                     });
                 }
-                bricks[i] = cols;
+                that.bricks[i] = cols;
             }
         } else {
-            bricks = spec.bricks;
+            that.bricks = spec.bricks;
         }
 
-
-        input.ShowScreen('main-menu');
-
-        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, paddle.moveLeft);
-        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, paddle.moveRight);
-        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_ESCAPE, pauseGame);
-
-        return {
-            bricks,
-            balls,
-            isActive,
-            score,
-            speed,
-            paddles,
-            brokenBricks,
-            paddle,
-            topBar,
-            countDown,
+        that.StartGame = ()=>{
+            that.isPaused = false;
+            that.balls[0].isStart = true;
         };
-    }
 
-    function StartGame() {
-        balls[0].isStart = true;
-    }
-
-    function pauseGame() {
-        input.cancelNextRequest = true;
-        document.getElementById('paused-section').style.display = 'block';
-        document.getElementById('background-shield').style.display = 'block';
-    }
-
-    function HandleGameOver() {
-        if (paddles === 0) {
-            input.cancelNextRequest = true;
-
-        } else {
-            paddles--;
-            input.cancelNextRequest = true;
+        function pauseGame() {
+            that.isPaused = true;
+            document.getElementById('paused-section').style.display = 'block';
+            document.getElementById('background-shield').style.display = 'block';
         }
 
-        return {
-            paddles,
-            speed,
-            score,
-            bricks,
-            balls
-        };
-    }
+        that.HandleGameOver = ()=>{
+            if (that.paddles === 0) {
+                input.cancelNextRequest = true;
 
-    function Countdown(elapsedTime) {
-        let countDown = null;
-
-        countDownElapsed += elapsedTime;
-
-        if(countDownElapsed >= 1000 && !isActive) {
-            countDownElapsed = 0;
-            count--;
-            countDownText = (count !== 0) ? count : 'GO!';
-        }
-
-        countDown = graphics.Text({
-            text: countDownText,
-            font: '64px Arial, sans-serif',
-            fill: 'rgba(150, 0, 0, 1)',
-            stroke: 'rgba(255,0,0,1)',
-            position: {x: graphics.canvas.width / 2, y: graphics.canvas.height / 2}
-        });
-
-        if(count < 0) {
-            count = 3;
-            countDownText = '';
-            countDownElapsed = 0;
-            isActive = true;
-            countDown = null;
-        }
-
-        return {
-            countDown,
-            isActive
-        };
-    }
-
-    function handleCollisions() {
-        _.each(bricks, (row, y)=>{
-            _.each(row.bricks, (brick, x)=>{
-                if(brick && brick.remove) {
-                    bricks[y].bricks.splice(x,1);
-                }
-            });
-        });
-
-        _.each(bricks, (row)=>{
-            if(!row.isGiven && row.bricks.length === 0) {
-                row.isGiven = true;
-                score += 25;
-            }
-        });
-    }
-
-    function updateSpeed(spec) {
-        if(didSetSpeed !== spec.num) {
-            didSetSpeed = spec.num;
-            speed += spec.speed;
-
-            _.each(balls, (ball)=>{
-                ball.updateSpeed(speed);
-            });
-        }
-    }
-// ******** game state functions -- end
-
-// ******** check functions
-    function CheckBrokenBricks() {
-        switch(brokenBricks) {
-            case 4:
-                updateSpeed({num: 4, speed: 1});
-                break;
-            case 12:
-                updateSpeed({num: 12, speed: 1});
-                break;
-            case 36:
-                updateSpeed({num: 36, speed: 3});
-                break;
-            case 62:
-                updateSpeed({num: 62, speed: 4});
-                break;
-            default:
-        }
-    }
-
-    function CheckPoints() {
-        switch(score) {
-            case 100:
-                // updateSpeed({num: 100, speed: 1});
-                break;
-            default:
-        }
-    }
-
-    function CheckCollision() {
-        _.each(balls, (ball)=>{
-            // bounce off left/right
-            if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
-                ball.dx = -ball.dx;
-            }
-
-            // paddle collision
-            if(ball.y + ball.dy > paddle.top - ball.radius) {
-
-                // left
-                if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
-                    ball.dy = -ball.dy;
-                    ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
-                }
-
-                // center
-                if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
-                    ball.dy = -ball.dy;
-                }
-
-                // right
-                if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
-                    ball.dy = -ball.dy;
-                    ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
-                }
-            }
-
-            // bound off top
-            if((ball.y + ball.dy - OFFSET / 2) < ball.radius) {
-                ball.dy = -ball.dy;
-
-            } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
-                // ball hits bottom
-                isRestart = true;
+            } else {
+                that.paddles--;
                 input.cancelNextRequest = true;
             }
 
-            _.each(bricks, (row)=>{
-                _.each(row.bricks, (brick)=>{
-                    if(brick) {
-                        let ballX = ball.x - ball.radius;
-                        let ballY = ball.y - ball.radius;
-                        if(ballX > brick.left && ballX < brick.right &&
-                        ballY < brick.bottom && ballY > brick.top) {
-                            ball.dy = -ball.dy;
-                            brick.remove = true;
-                            score += brick.points;
-                            brokenBricks += 1;
-                            // brick.remove();
-                        }
+            return {
+                score: that.score,
+                speed: that.speed,
+                paddles: that.paddles,
+                bricks: that.bricks,
+                balls: that.balls
+            };
+        };
+
+        that.Countdown = (elapsedTime)=>{
+            let countDown = null;
+
+            countDownElapsed += elapsedTime;
+
+            if(countDownElapsed >= 1000 && !that.isActive) {
+                countDownElapsed = 0;
+                count--;
+                countDownText = (count !== 0) ? count : 'GO!';
+            }
+
+            countDown = graphics.Text({
+                text: countDownText,
+                font: '64px Arial, sans-serif',
+                fill: 'rgba(150, 0, 0, 1)',
+                stroke: 'rgba(255,0,0,1)',
+                position: {x: graphics.canvas.width / 2, y: graphics.canvas.height / 2}
+            });
+
+            if(count < 0) {
+                count = 3;
+                countDownText = '';
+                countDownElapsed = 0;
+                that.isActive = true;
+                countDown = null;
+            }
+
+            return {
+                countDown,
+                isActive: that.isActive
+            };
+        };
+
+        function handleCollisions() {
+            _.each(that.bricks, (row, y)=>{
+                _.each(row.bricks, (brick, x)=>{
+                    if(brick && brick.remove) {
+                        that.bricks[y].bricks.splice(x,1);
                     }
                 });
             });
 
-            topBar.score = score;
+            _.each(that.bricks, (row)=>{
+                if(!row.isGiven && row.bricks.length === 0) {
+                    row.isGiven = true;
+                    that.score += 25;
+                }
+            });
+        }
 
-            handleCollisions();
+        function updateSpeed(spec) {
+            if(didSetSpeed !== spec.num) {
+                didSetSpeed = spec.num;
+                that.speed += spec.speed;
 
-            ball.x += ball.dx;
-            ball.y += ball.dy;
-        });
+                _.each(that.balls, (ball)=>{
+                    ball.updateSpeed(that.speed);
+                });
+            }
+        }
+    // ******** game state functions -- end
 
-        return isRestart;
+    // ******** check functions
+        that.CheckBrokenBricks = ()=>{
+            switch(that.brokenBricks) {
+                case 4:
+                    updateSpeed({num: 4, speed: 1});
+                    break;
+                case 12:
+                    updateSpeed({num: 12, speed: 1});
+                    break;
+                case 36:
+                    updateSpeed({num: 36, speed: 3});
+                    break;
+                case 62:
+                    updateSpeed({num: 62, speed: 4});
+                    break;
+                default:
+            }
+        };
+
+        that.CheckPoints = ()=>{
+            switch(that.score) {
+                case 100:
+                    // updateSpeed({num: 100, speed: 1});
+                    break;
+                default:
+            }
+        };
+
+        that.CheckCollision = ()=>{
+            let paddle = that.paddle;
+
+            _.each(that.balls, (ball)=>{
+                // bounce off left/right
+                if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
+                    ball.dx = -ball.dx;
+                }
+
+                // paddle collision
+                if(ball.y + ball.dy > paddle.top - ball.radius) {
+
+                    // left
+                    if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
+                        ball.dy = -ball.dy;
+                        ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+                    }
+
+                    // center
+                    if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
+                        ball.dy = -ball.dy;
+                    }
+
+                    // right
+                    if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
+                        ball.dy = -ball.dy;
+                        ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
+                    }
+                }
+
+                // bound off top
+                if((ball.y + ball.dy - OFFSET / 2) < ball.radius) {
+                    ball.dy = -ball.dy;
+
+                } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
+                    // ball hits bottom
+                    isRestart = true;
+                    input.cancelNextRequest = true;
+                }
+
+                _.each(that.bricks, (row)=>{
+                    _.each(row.bricks, (brick)=>{
+                        if(brick) {
+                            let ballX = ball.x - ball.radius;
+                            let ballY = ball.y - ball.radius;
+                            if(ballX > brick.left && ballX < brick.right &&
+                            ballY < brick.bottom && ballY > brick.top) {
+                                ball.dy = -ball.dy;
+                                brick.remove = true;
+                                that.score += brick.points;
+                                that.brokenBricks += 1;
+                                // brick.remove();
+                            }
+                        }
+                    });
+                });
+
+                that.topBar.score = that.score;
+
+                handleCollisions();
+
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+            });
+
+            return isRestart;
+        };
+
+    // ******** check functions -- end
+
+        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, that.paddle.moveLeft);
+        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, that.paddle.moveRight);
+        spec.keyBoard.registerCommand(KeyEvent.DOM_VK_ESCAPE, pauseGame);
+
+        input.ShowScreen('main-menu');
+
+        return that;
     }
 
-// ******** check functions -- end
-
     return {
-        isStart,
-        paddles,
-        paddle,
-
         persistence,
         addValue,
         removeValue,
 
-        Init,
-        StartGame,
-        HandleGameOver,
-        Countdown,
-
-        CheckBrokenBricks,
-        CheckPoints,
-        CheckCollision
+        Create
     };
 
-})(Breakout.graphics, Breakout.input, Breakout.components);
+})(Breakout.screens, Breakout.graphics, Breakout.input, Breakout.components);
