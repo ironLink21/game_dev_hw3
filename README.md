@@ -15,12 +15,9 @@ In game display of paddles as graphic (not text) elements           | 5pt
 Valid collision detection and reflection                            | 10pt
 Paddle shrinks to half size when a brick in the top row is cleared  | 5pt
 "tasteful" Particles that cover the surface area of the brick       | 10pt
+High scores persist to the local browser storage                    | 8pt
 
-79 / 90
-
+87 / 90
 
 # not working
 Correct ball reflection, based on where is hits the paddle          | 3pt
-High scores persist to the local browser storage                    | 8pt
-
-11
