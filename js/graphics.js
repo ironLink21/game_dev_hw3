@@ -52,6 +52,22 @@ Breakout.graphics = (()=>{
         return that;
     }
 
+    function DrawTextures(spec) {
+        context.save();
+
+        context.translate(spec.center.x, spec.center.y);
+        context.rotate(spec.rotation);
+        context.translate(-spec.center.x, -spec.center.y);
+
+        context.drawImage(
+            spec.image,
+            spec.center.x - spec.size/2,
+            spec.center.y - spec.size/2,
+            spec.size, spec.size);
+
+        context.restore();
+    }
+
     function DrawBricks(bricks) {
         _.each(bricks, (row)=>{
             _.each(row.bricks, (brick)=>{
@@ -68,12 +84,20 @@ Breakout.graphics = (()=>{
         });
     }
 
+    function DrawParticles(particles) {
+        _.each(particles, (particle)=>{
+            particle.draw();
+        });
+    }
+
     return {
         canvas,
         context,
         Clear,
         Text,
+        DrawTextures,
         DrawBricks,
-        DrawBalls
+        DrawBalls,
+        DrawParticles
     };
 })();

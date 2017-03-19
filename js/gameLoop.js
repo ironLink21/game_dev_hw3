@@ -30,6 +30,11 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
                 }
             }
 
+            _.each(game.particles, (particle)=>{
+                particle.update(elapsedTime);
+                particle.create();
+            });
+
             game.CheckBrokenBricks();
             game.CheckPoints();
 
@@ -50,6 +55,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
         game.paddle.draw();
         graphics.DrawBalls(game.balls);
         graphics.DrawBricks(game.bricks);
+        graphics.DrawParticles(game.particles);
 
         if(game.countDown) {
             game.countDown.draw();

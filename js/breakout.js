@@ -66,6 +66,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         that.isPaused = false;
         that.bricks = [];
         that.balls = [];
+        that.particles = [];
 
         that.score = spec.score;
         that.speed = spec.ballSpeed;
@@ -218,6 +219,15 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             _.each(that.bricks, (row, y)=>{
                 _.each(row.bricks, (brick, x)=>{
                     if(brick && brick.remove) {
+                        let particlesFire = ParticleSystem({
+                            image : './assets/fire.png',
+                            center: {x: brick.x, y: brick.y},
+                            speed: {mean: 50, stdev: 25},
+                            lifetime: {mean: 4, stdev: 1}
+                        }, graphics);
+
+                        that.particles.push(particlesFire);
+
                         that.bricks[y].bricks.splice(x,1);
                     }
                 });
