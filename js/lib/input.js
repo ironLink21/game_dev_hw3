@@ -87,11 +87,22 @@ Breakout.input = ((screens)=>{
                 screens['game-play'].run();
                 break;
 
+            case 'saveScore':
+                document.getElementById('name-section').style.display = 'none';
+                document.getElementById('background-shield').style.display = 'none';
+                screens['game-play'].saveScore();
+                ShowScreen('main-menu');
+                break;
+
             case 'quit':
                 // TODO: check score and store
                 console.log('quiting');
+                document.getElementById('name-section').style.display = 'none';
                 document.getElementById('paused-section').style.display = 'none';
                 document.getElementById('background-shield').style.display = 'none';
+                ShowScreen('main-menu');
+                break;
+
             default:
                 ShowScreen('main-menu');
         }

@@ -38,13 +38,20 @@
             </div>
 
             <div id="about" class="screen">
-
                 <span><h1>About</h1><div class="back-btn" onclick="Breakout.input.ButtonClick('')"> < Back</div></span>
                 <p>Developed by</p>
                 <p>Seth Bertlshofer A00933231</p>
             </div>
         </div>
         <div id="score-section"></div>
+
+        <div id="name-section" class="menu">
+            <p> Enter your name: </p>
+            <input id="name-field" type="text">
+            <button onclick="Breakout.input.ButtonClick('saveScore')"> Save </button>
+            <button onclick="Breakout.input.ButtonClick('quit')"> Cancel </button>
+        </div>
+
         <div id="paused-section" class="menu">
             <div onclick="Breakout.input.ButtonClick('unPause')"> Resume </div>
             <div onclick="Breakout.input.ButtonClick('quit')"> Quit </div>
@@ -70,3 +77,20 @@
     <script type="text/javascript" src="./js/menu/help.js"></script>
     <script type="text/javascript" src="./js/menu/about.js"></script>
 </html>
+
+
+
+<table>
+    <thead>
+        <td></td>
+        <td></td>
+        <td></td>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>

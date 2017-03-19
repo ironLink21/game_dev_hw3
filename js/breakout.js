@@ -25,12 +25,39 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
         function report(htmlNode) {
             htmlNode.innerHTML = '';
-            let color = 1;
-            _.each(highScores, (score, key)=>{
-                color = (color === 1) ? 0 : 1;
-                htmlNode.innerHTML += ('<span class="color' + color + '"><div>' + key + '</div><div>' + score + '</div></span>');
+            let highScoresTable = '';
+
+            highScoresTable =  '<table align="center" border="2" cellpadding="5" width="500">' +                                '<thead style="background-color: #FFF">' +
+                                    '<th>Rank</th>'+
+                                    '<th>Name</th>'+
+                                    '<th>Score</th>'+
+                                  '</thead>'+
+                                  '<tbody>';
+
+
+            // _.sortBy(highScores, (obj)=>{
+            //     return obj
+            // });
+
+            let line = 1;
+            let rank = 0;
+
+            _.each(highScores, (score, name)=>{
+                line = (line === 1) ? 0 : 1;
+                let color = (line === 1) ? "#808080" : "#4169E1";
+                ++rank;
+
+                highScoresTable += '<tr align="center" style="background-color: ' + color + '">' +
+                                     '<td>' + rank + '</td>' +
+                                     '<td>' + name + '</td>' +
+                                     '<td>' + score + '</td>' +
+                                   '</tr>';
             });
-            htmlNode.scrollTop = htmlNode.scrollHeight;
+
+            highScoresTable +=    '</tbody>' +
+                                '</table>';
+
+            htmlNode.innerHTML = highScoresTable;
         }
 
         return {
@@ -39,17 +66,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             report
         };
     })();
-
-    function addValue() {
-        persistence.add('1'/*document.getElementById('id-key').value*/, '1234'/*document.getElementById('id-value').value*/);
-
-        // persistence.report();
-    }
-
-    function removeValue() {
-        persistence.remove('1'/*document.getElementById('id-key').value*/);
-        // persistence.report();
-    }
 // ******** storage section -- end
 
 // ******** game state functions
@@ -60,7 +76,8 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             count = 4,
             didSetSpeed = 0,
             countDownText = '',
-            countDownElapsed = 0;
+            countDownElapsed = 0,
+            particleElapsed = 0;
 
         that.isActive = false;
         that.isPaused = false;
@@ -221,12 +238,12 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                     if(brick && brick.remove) {
                         let particlesFire = ParticleSystem({
                             image : './assets/fire.png',
-                            center: {x: brick.x, y: brick.y},
-                            speed: {mean: 50, stdev: 25},
-                            lifetime: {mean: 4, stdev: 1}
+                            center: {x: brick.x, y: brick.y + 50},
+                            speed: {mean: 15, stdev: 7},
+                            lifetime: {mean: 2, stdev: 1}
                         }, graphics);
 
-                        that.particles.push(particlesFire);
+                        that.particles.push({time: 2, obj:particlesFire});
 
                         that.bricks[y].bricks.splice(x,1);
                     }
@@ -259,6 +276,24 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 // ******** game state functions -- end
 
 // ******** check functions
+        that.checkParticles = (elapsedTime)=>{
+            particleElapsed += elapsedTime;
+
+            if(particleElapsed >= 500) {
+                particleElapsed = 0;
+
+                _.each(that.particles, (particle, i)=>{
+                    if(particle) {
+                        if(particle.time <= 0) {
+                            that.particles.splice(i,1);
+                        } else {
+                            particle.time -= 1;
+                        }
+                    }
+                });
+            }
+        };
+
         that.CheckBrokenBricks = ()=>{
             switch(that.brokenBricks) {
                 case 4:
@@ -354,6 +389,17 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         };
 // ******** check functions -- end
 
+// ******** storage functions
+        that.addValue = ()=>{
+            let name = document.getElementById('name-field').value;
+            persistence.add(name, that.score);
+        };
+
+        that.removeValue = (name)=>{
+            persistence.remove(name);
+        };
+// ******** storage functions -- end
+
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_LEFT, that.paddle.moveLeft);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_RIGHT, that.paddle.moveRight);
         spec.keyBoard.registerCommand(KeyEvent.DOM_VK_ESCAPE, pauseGame);
@@ -365,9 +411,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
     return {
         persistence,
-        addValue,
-        removeValue,
-
         Create
     };
 

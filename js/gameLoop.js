@@ -22,7 +22,8 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
                 let output = game.HandleGameOver();
 
                 if(output.paddles === 0) {
-                    input.ShowScreen('main-menu');
+                    document.getElementById('name-section').style.display = 'block';
+                    document.getElementById('background-shield').style.display = 'block';
 
                 } else {
                     game = breakout.Create({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
@@ -31,10 +32,11 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
             }
 
             _.each(game.particles, (particle)=>{
-                particle.update(elapsedTime);
-                particle.create();
+                particle.obj.update(elapsedTime);
+                particle.obj.create();
             });
 
+            game.checkParticles(elapsedTime);
             game.CheckBrokenBricks();
             game.CheckPoints();
 
@@ -84,15 +86,21 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
         requestAnimationFrame(gameLoop);
     }
 
+    function saveScore() {
+        game.addValue();
+    }
+
     window.onload = ()=>{
         game = breakout.Create({keyBoard, paddles: 3, score: 0, ballSpeed: 3, brokenBricks: 0});
+        document.getElementById('name-section').style.display = 'none';
         document.getElementById('paused-section').style.display = 'none';
         document.getElementById('background-shield').style.display = 'none';
     };
 
     return {
         isPaused,
-        run
+        run,
+        saveScore
     };
 
 })(Breakout.breakout, Breakout.graphics, Breakout.input);

@@ -61,8 +61,8 @@ Breakout.graphics = (()=>{
 
         context.drawImage(
             spec.image,
-            spec.center.x - spec.size/2,
-            spec.center.y - spec.size/2,
+            spec.center.x - spec.size / 2,
+            spec.center.y - spec.size / 2,
             spec.size, spec.size);
 
         context.restore();
@@ -86,7 +86,7 @@ Breakout.graphics = (()=>{
 
     function DrawParticles(particles) {
         _.each(particles, (particle)=>{
-            particle.draw();
+            particle.obj.draw();
         });
     }
 
