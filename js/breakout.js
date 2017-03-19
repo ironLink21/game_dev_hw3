@@ -13,8 +13,8 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             highScores = JSON.parse(previousScores);
         }
 
-        function add(key, value) {
-            highScores[key] = value;
+        function add(name, score) {
+            highScores[name] = score;
             localStorage['Breakout.highScores'] = JSON.stringify(highScores);
         }
 
@@ -25,7 +25,9 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
         function report(htmlNode) {
             htmlNode.innerHTML = '';
-            let highScoresTable = '';
+            let highScoresTable = '',
+                line = 1,
+                rank = 0;
 
             highScoresTable =  '<table align="center" border="2" cellpadding="5" width="500">' +                                '<thead style="background-color: #FFF">' +
                                     '<th>Rank</th>'+
@@ -34,23 +36,21 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                                   '</thead>'+
                                   '<tbody>';
 
+            var highScoresObj = _.map(highScores, (score, name)=>{
+                return {name, score};
+            });
 
-            // _.sortBy(highScores, (obj)=>{
-            //     return obj
-            // });
+            let sortedHighScores = _.sortBy(highScoresObj, 'score').reverse();
 
-            let line = 1;
-            let rank = 0;
-
-            _.each(highScores, (score, name)=>{
+            _.each(sortedHighScores, (obj)=>{
                 line = (line === 1) ? 0 : 1;
                 let color = (line === 1) ? "#808080" : "#4169E1";
                 ++rank;
 
                 highScoresTable += '<tr align="center" style="background-color: ' + color + '">' +
                                      '<td>' + rank + '</td>' +
-                                     '<td>' + name + '</td>' +
-                                     '<td>' + score + '</td>' +
+                                     '<td>' + obj.name + '</td>' +
+                                     '<td>' + obj.score + '</td>' +
                                    '</tr>';
             });
 
