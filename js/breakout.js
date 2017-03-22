@@ -266,10 +266,9 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         function updateSpeed(spec) {
             if(didSetSpeed !== spec.num) {
                 didSetSpeed = spec.num;
-                that.speed += spec.speed;
 
                 _.each(that.balls, (ball)=>{
-                    ball.updateSpeed(that.speed);
+                    ball.updateSpeed(spec.speed);
                 });
             }
         }
@@ -294,19 +293,19 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             }
         };
 
-        that.CheckBrokenBricks = ()=>{
+        that.CheckBrokenBricks = (elapsedTime)=>{
             switch(that.brokenBricks) {
                 case 4:
-                    updateSpeed({num: 4, speed: 1});
+                    updateSpeed({elapsedTime, num: 4, speed: 230});
                     break;
                 case 12:
-                    updateSpeed({num: 12, speed: 1});
+                    updateSpeed({elapsedTime, num: 12, speed: 240});
                     break;
                 case 36:
-                    updateSpeed({num: 36, speed: 3});
+                    updateSpeed({elapsedTime, num: 36, speed: 250});
                     break;
                 case 62:
-                    updateSpeed({num: 62, speed: 4});
+                    updateSpeed({elapsedTime, num: 62, speed: 300});
                     break;
                 default:
             }
@@ -326,12 +325,12 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
             _.each(that.balls, (ball)=>{
                 // bounce off left/right
-                if(ball.x + ball.dx > graphics.canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
+                if(ball.x > graphics.canvas.width - ball.radius || ball.x < ball.radius) {
                     ball.dx = -ball.dx;
                 }
 
                 // paddle collision
-                if(ball.y + ball.dy > paddle.top - ball.radius) {
+                if(ball.y > paddle.top - ball.radius) {
 
                     // left
                     if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
@@ -352,10 +351,10 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 }
 
                 // bound off top
-                if((ball.y + ball.dy - OFFSET / 2) < ball.radius) {
+                if((ball.y - OFFSET / 2) < ball.radius) {
                     ball.dy = -ball.dy;
 
-                } else if(ball.y + ball.dy > graphics.canvas.height - ball.radius) {
+                } else if(ball.y > graphics.canvas.height - ball.radius) {
                     // ball hits bottom
                     isRestart = true;
                     input.cancelNextRequest = true;
@@ -380,9 +379,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 that.topBar.score = that.score;
 
                 handleCollisions();
-
-                ball.x += ball.dx;
-                ball.y += ball.dy;
             });
 
             return isRestart;

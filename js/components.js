@@ -67,9 +67,6 @@ Breakout.components = ((graphics)=>{
             that.draw = ()=>{
                 graphics.context.save();
 
-                graphics.context.translate(that.x, that.y);
-                graphics.context.translate(-that.x, -that.y);
-
                 graphics.context.drawImage(
                         image,
                         that.x - spec.width/2,
@@ -85,6 +82,11 @@ Breakout.components = ((graphics)=>{
         that.resetCenter = (center)=>{
             that.x  = center.x;
             that.y  = center.y;
+        };
+
+        that.update = (elapsedTime)=>{
+            that.x += that.dx * (elapsedTime / 1000);
+            that.y += that.dy * (elapsedTime / 1000);
         };
 
         that.updateSpeed = (speed)=>{
