@@ -329,8 +329,11 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
             _.each(that.balls, (ball)=>{
                 // bounce off left/right
-                if(ball.x > graphics.canvas.width - ball.radius || ball.x < ball.radius) {
+                if(ball.x > graphics.canvas.width - ball.radius || (ball.x < ball.radius)) {
                     ball.dx = -ball.dx;
+
+                    ball.x = (ball.x < ball.radius) ? ball.radius : ball.x;
+                    ball.x = (ball.x > graphics.canvas.width) ? graphics.canvas.width - ball.radius : ball.x;
                 }
 
                 // paddle collision
