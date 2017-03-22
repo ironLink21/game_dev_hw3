@@ -16,9 +16,9 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
         }
 
         if (game.isActive) {
-            let isRestart = game.CheckCollision(elapsedTime);
+            game.CheckCollision(elapsedTime);
 
-            if(isRestart) {
+            if(game.isRestart) {
                 let output = game.HandleGameOver();
 
                 if(output.paddles === 0) {
@@ -26,7 +26,7 @@ Breakout.screens['game-play'] = ((breakout, graphics, input)=>{
                     document.getElementById('background-shield').style.display = 'block';
 
                 } else {
-                    game = breakout.Create({keyBoard, isRestart, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
+                    game = breakout.Create({keyBoard, isRestart: true, paddles: output.paddles, score: output.score, ballSpeed: output.speed, brokenBricks: output.brokenBricks , bricks: output.bricks, balls: output.balls});
                     input.ShowScreen('game-play');
                 }
             }

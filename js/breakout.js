@@ -71,7 +71,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 // ******** game state functions
     function Create(spec) {
         let that = {},
-            isRestart = false,
             isShrinkPaddle = false,
             count = 4,
             didSetSpeed = 0,
@@ -90,10 +89,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         that.paddles = spec.paddles;
         that.brokenBricks = spec.brokenBricks;
 
-        if(spec.isRestart) {
-            isRestart = spec.isRestart;
-        }
-
         that.paddle = components.Paddle({
             image: './assets/blue_brick.png',
             speed: 600,
@@ -102,19 +97,27 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             height: 20
         });
 
-        if(!isRestart){
+        if(!spec.isRestart){
             let ball = components.Ball({
-                speed: that.speed,
+                speed: -that.speed,
                 image: './assets/blue_ball.png',
-                direction: 0,
                 center:{ x: that.paddle.x, y: graphics.canvas.height - 40},
                 width: 20, height: 20
             });
             that.balls.push(ball);
 
         } else {
-            that.balls = spec.balls;
-            that.balls[0].resetCenter({ x: that.paddle.x, y: graphics.canvas.height - 40});
+            that.balls = [];
+            _.each(spec.balls, (ball)=>{
+                ball = components.Ball({
+                    speed: -that.speed,
+                    image: './assets/blue_ball.png',
+                    center:{ x: that.paddle.x, y: graphics.canvas.height - 40},
+                    width: 20, height: 20
+                });
+
+                that.balls.push(ball);
+            });
         }
 
         that.topBar = components.TopBar({
@@ -128,7 +131,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             color: '#4169E1',
         });
 
-        if(!isRestart) {
+        if(!spec.isRestart) {
             for (let i = 0; i < 8; i++) {
                 let color,
                     points,
@@ -167,6 +170,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 that.bricks[i] = cols;
             }
         } else {
+            that.isRestart = false;
             that.bricks = spec.bricks;
         }
 
@@ -356,7 +360,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
                 } else if(ball.y > graphics.canvas.height - ball.radius) {
                     // ball hits bottom
-                    isRestart = true;
+                    that.isRestart = true;
                     input.cancelNextRequest = true;
                 }
 
@@ -380,8 +384,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 
                 handleCollisions();
             });
-
-            return isRestart;
         };
 // ******** check functions -- end
 
