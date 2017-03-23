@@ -8,6 +8,74 @@ Breakout.input = ((screens)=>{
 
     var cancelNextRequest = false;
 
+    // ******** storage section
+    let persistence = (()=>{
+        let highScores = {},
+            previousScores = localStorage.getItem('Breakout.highScores');
+
+        if (previousScores !== null) {
+            highScores = JSON.parse(previousScores);
+        }
+
+        function add(name, score) {
+            highScores[name] = score;
+            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+        }
+
+        function remove(key) {
+            if(key === 'all') {
+                localStorage['Breakout.highScores'] = JSON.stringify({});
+            } else {
+                delete highScores[key];
+                localStorage['Breakout.highScores'] = JSON.stringify(highScores);
+            }
+        }
+
+        function report(htmlNode) {
+            htmlNode.innerHTML = '';
+            let highScoresTable = '',
+                line = 1,
+                rank = 0;
+
+            highScoresTable =  '<table align="center" border="2" cellpadding="5" width="500">' +                                '<thead style="background-color: #FFF">' +
+                                    '<th>Rank</th>'+
+                                    '<th>Name</th>'+
+                                    '<th>Score</th>'+
+                                  '</thead>'+
+                                  '<tbody>';
+
+            var highScoresObj = _.map(highScores, (score, name)=>{
+                return {name, score};
+            });
+
+            let sortedHighScores = _.sortBy(highScoresObj, 'score').reverse();
+
+            _.each(sortedHighScores, (obj)=>{
+                line = (line === 1) ? 0 : 1;
+                let color = (line === 1) ? "#808080" : "#4169E1";
+                ++rank;
+
+                highScoresTable += '<tr align="center" style="background-color: ' + color + '">' +
+                                     '<td>' + rank + '</td>' +
+                                     '<td>' + obj.name + '</td>' +
+                                     '<td>' + obj.score + '</td>' +
+                                   '</tr>';
+            });
+
+            highScoresTable +=    '</tbody>' +
+                                '</table>';
+
+            htmlNode.innerHTML = highScoresTable;
+        }
+
+        return {
+            add,
+            remove,
+            report
+        };
+    })();
+// ******** storage section -- end
+
     function Keyboard() {
         let that = {
             keys : {},
@@ -81,6 +149,12 @@ Breakout.input = ((screens)=>{
                 ShowScreen('about');
                 break;
 
+            case 'reset':
+                persistence.remove('all');
+                screens['high-scores'].run();
+                location.reload(true);
+                break;
+
             case 'unPause':
                 document.getElementById('paused-section').style.display = 'none';
                 document.getElementById('background-shield').style.display = 'none';
@@ -95,7 +169,6 @@ Breakout.input = ((screens)=>{
                 break;
 
             case 'quit':
-                // TODO: check score and store
                 console.log('quiting');
                 document.getElementById('name-section').style.display = 'none';
                 document.getElementById('paused-section').style.display = 'none';
@@ -110,7 +183,7 @@ Breakout.input = ((screens)=>{
 
     return {
         cancelNextRequest,
-
+        persistence,
         Keyboard,
         ShowScreen,
         ButtonClick,

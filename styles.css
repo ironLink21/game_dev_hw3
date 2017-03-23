@@ -68,11 +68,30 @@ body {
     color: #000;
     background-color: #808080;
     padding: 8px;
+    cursor: pointer;
 }
 
 .back-btn:hover {
     color: #FFF;
     background-color: #4169E1;
+}
+
+#reset-btn {
+    position: absolute;
+    left: 235px;
+    top: 15px;
+    height: 9px;
+    width: 50px;
+    text-align: center;
+    color: #000;
+    background-color: #808080;
+    padding: 8px;
+    cursor: pointer;
+}
+
+#reset-btn:hover {
+    color: #FFF;
+    background-color: red;
 }
 
 #main-menu {

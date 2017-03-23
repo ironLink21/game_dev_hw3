@@ -4,70 +4,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
     let NUMBRICKS = 14,
         OFFSET = 50;
 
-// ******** storage section
-    let persistence = (()=>{
-        let highScores = {},
-            previousScores = localStorage.getItem('Breakout.highScores');
-
-        if (previousScores !== null) {
-            highScores = JSON.parse(previousScores);
-        }
-
-        function add(name, score) {
-            highScores[name] = score;
-            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
-        }
-
-        function remove(key) {
-            delete highScores[key];
-            localStorage['Breakout.highScores'] = JSON.stringify(highScores);
-        }
-
-        function report(htmlNode) {
-            htmlNode.innerHTML = '';
-            let highScoresTable = '',
-                line = 1,
-                rank = 0;
-
-            highScoresTable =  '<table align="center" border="2" cellpadding="5" width="500">' +                                '<thead style="background-color: #FFF">' +
-                                    '<th>Rank</th>'+
-                                    '<th>Name</th>'+
-                                    '<th>Score</th>'+
-                                  '</thead>'+
-                                  '<tbody>';
-
-            var highScoresObj = _.map(highScores, (score, name)=>{
-                return {name, score};
-            });
-
-            let sortedHighScores = _.sortBy(highScoresObj, 'score').reverse();
-
-            _.each(sortedHighScores, (obj)=>{
-                line = (line === 1) ? 0 : 1;
-                let color = (line === 1) ? "#808080" : "#4169E1";
-                ++rank;
-
-                highScoresTable += '<tr align="center" style="background-color: ' + color + '">' +
-                                     '<td>' + rank + '</td>' +
-                                     '<td>' + obj.name + '</td>' +
-                                     '<td>' + obj.score + '</td>' +
-                                   '</tr>';
-            });
-
-            highScoresTable +=    '</tbody>' +
-                                '</table>';
-
-            htmlNode.innerHTML = highScoresTable;
-        }
-
-        return {
-            add,
-            remove,
-            report
-        };
-    })();
-// ******** storage section -- end
-
 // ******** game state functions
     function Create(spec) {
         let that = {},
@@ -121,7 +57,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             });
         }
 
-        that.score = 98;
         that.topBar = components.TopBar({
             width: graphics.canvas.width,
             height: OFFSET / 2,
@@ -302,16 +237,16 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         that.CheckBrokenBricks = (elapsedTime)=>{
             switch(that.brokenBricks) {
                 case 4:
-                    updateSpeed({elapsedTime, num: 4, speed: 230});
+                    updateSpeed({elapsedTime, num: 4, speed: 250});
                     break;
                 case 12:
-                    updateSpeed({elapsedTime, num: 12, speed: 240});
+                    updateSpeed({elapsedTime, num: 12, speed: 270});
                     break;
                 case 36:
-                    updateSpeed({elapsedTime, num: 36, speed: 250});
+                    updateSpeed({elapsedTime, num: 36, speed: 290});
                     break;
                 case 62:
-                    updateSpeed({elapsedTime, num: 62, speed: 300});
+                    updateSpeed({elapsedTime, num: 62, speed: 310});
                     break;
                 default:
             }
@@ -389,11 +324,11 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
 // ******** storage functions
         that.addValue = ()=>{
             let name = document.getElementById('name-field').value;
-            persistence.add(name, that.score);
+            input.persistence.add(name, that.score);
         };
 
         that.removeValue = (name)=>{
-            persistence.remove(name);
+            input.persistence.remove(name);
         };
 // ******** storage functions -- end
 
@@ -407,7 +342,6 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
     }
 
     return {
-        persistence,
         Create
     };
 
