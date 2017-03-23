@@ -74,6 +74,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             isShrinkPaddle = false,
             count = 4,
             didSetSpeed = 0,
+            didAddBall = 0,
             countDownText = '',
             countDownElapsed = 0,
             particleElapsed = 0;
@@ -120,6 +121,7 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
             });
         }
 
+        that.score = 98;
         that.topBar = components.TopBar({
             width: graphics.canvas.width,
             height: OFFSET / 2,
@@ -316,11 +318,18 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
         };
 
         that.CheckPoints = ()=>{
-            switch(that.score) {
-                case 100:
-                    // updateSpeed({num: 100, speed: 1});
-                    break;
-                default:
+            if(that.score % 100 === 0 && that.score !== 0) {
+                if(didAddBall !== that.score) {
+                    didAddBall = that.score;
+
+                    let newBall = components.Ball({
+                        speed: -that.speed,
+                        image: './assets/blue_ball.png',
+                        center:{ x: that.paddle.x, y: graphics.canvas.height - 40},
+                        width: 20, height: 20
+                    });
+                    that.balls.push(newBall);
+                }
             }
         };
 
