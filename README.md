@@ -24,9 +24,12 @@ Correct ball reflection, based on where is hits the paddle          | 3pt
 
 This assignment was really fun!
 
-in my testing it looks like my game fulfils all requirements listed in the rebrick.
+In my testing it looks like my game fulfils all requirements listed in the rebrick.
 
 The things that I didn't include from the assignment description was the
     - "Up and down arrow keys to move between the menu options.  Use ESC key to back out of the High Scores and Credits"
 
 It does however include mouse selection for all menu options/buttons
+
+Also sometimes based upon the angle of the ball movement, the ball will take-out multiple bricks right next to each other,
+it's a little buggy in that regard.
