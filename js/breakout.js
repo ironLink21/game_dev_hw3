@@ -337,24 +337,11 @@ Breakout.breakout = ((screens, graphics, input, components)=>{
                 }
 
                 // paddle collision
-                if(ball.y > paddle.top - ball.radius) {
+                if(ball.y > paddle.top - ball.radius && ball.x > paddle.left && ball.x < paddle.right) {
+                    let angle = 90 - (ball.x - paddle.x);
 
-                    // left
-                    if(ball.x > paddle.left && ball.x < paddle.x - paddle.centerSection) {
-                        ball.dy = -ball.dy;
-                        // ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
-                    }
-
-                    // center
-                    if(ball.x > paddle.x - paddle.centerSection && ball.x < paddle.x + paddle.centerSection) {
-                        ball.dy = -ball.dy;
-                    }
-
-                    // right
-                    if(ball.x > paddle.x + paddle.centerSection && ball.x < paddle.right) {
-                        ball.dy = -ball.dy;
-                        // ball.dx = -(ball.x - paddle.x) / (paddle.width / 2);
-                    }
+                    ball.dx = (Math.cos(angle * Math.PI / 180) * ball.speed);
+                    ball.dy = (Math.sin(angle * Math.PI / 180) * ball.speed);
                 }
 
                 // bound off top

@@ -60,6 +60,7 @@ Breakout.components = ((graphics)=>{
         that.x  = spec.center.x;
         that.y  = spec.center.y;
 
+        that.speed = spec.speed;
         that.dx = spec.speed;
         that.dy = spec.speed;
 
